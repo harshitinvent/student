@@ -72,7 +72,7 @@ export default function PersonalSettings() {
   };
 
   if (loading) return <div className="p-8 text-center">Loading...</div>;
-  if (error) return <div className="p-8 text-red-500 text-center">{error}</div>;
+  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
   if (!profile) return null;
 
   return (
@@ -82,7 +82,11 @@ export default function PersonalSettings() {
         subtitle={'Manage your account information.'}
       >
         <div className={'w-full overflow-hidden'}>
-          <div className={'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'}>
+          <div
+            className={
+              'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'
+            }
+          >
             <SettingValue
               type={'input'}
               value={editProfile.name ?? profile.name}
@@ -100,7 +104,11 @@ export default function PersonalSettings() {
               changeable={true}
             />
           </div> */}
-          <div className={'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'}>
+          <div
+            className={
+              'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'
+            }
+          >
             <SettingValue
               type={'input'}
               value={profile.email}
@@ -109,7 +117,11 @@ export default function PersonalSettings() {
             />
           </div>
 
-          <div className={'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'}>
+          <div
+            className={
+              'border-linePr flex min-h-50 items-center border-b py-8 max-md:px-8'
+            }
+          >
             <SettingValue
               label={'Change Password'}
               description={'Update your account password.'}
@@ -124,11 +136,11 @@ export default function PersonalSettings() {
           </div>
 
           {/* Add more fields as needed, e.g. phone, avatar, etc. */}
-          {success && <div className="text-green-600 px-8 py-2">{success}</div>}
+          {success && <div className="px-8 py-2 text-green-600">{success}</div>}
           {Object.keys(editProfile).length > 0 && (
             <div className="flex justify-end px-8 py-4">
               <button
-                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+                className="rounded bg-blue-600 px-6 py-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 onClick={handleSave}
                 disabled={saving}
               >

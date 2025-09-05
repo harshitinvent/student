@@ -1,4 +1,4 @@
-const API_BASE_URL_V1 = 'http://localhost:8080/api/v1';
+const API_BASE_URL_V1 = 'http://103.189.173.7:8080/api/v1';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
@@ -69,5 +69,34 @@ export const roomsAPI = {
 
     const data = await response.json().catch(() => ({}));
     return data.data;
+  },
+
+  reserveRoom: async (
+    roomId: string,
+    payload: {
+      checkIn: string; // ISO date
+      checkOut: string; // ISO date
+      guests: number;
+      studentId?: string;
+      studentEmail?: string;
+      roomId?: string;
+    }
+  ): Promise<{ id: string } | any> => {
+    const response = await fetch(
+      `${API_BASE_URL_V1}/student/rooms/reserve`,
+      {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(text || 'Failed to reserve room');
+    }
+
+    const data = await response.json().catch(() => ({}));
+    return data;
   },
 };

@@ -1,6 +1,37 @@
 import { useState, useEffect } from 'react';
-import { Modal, Form, Input, Button, Select, DatePicker, InputNumber, message, Table, Tag, Card, Space, Tooltip, Row, Col, Statistic } from 'antd';
-import { PlusOutlined, EditOutlined, EyeOutlined, DeleteOutlined, CheckCircleOutlined, SearchOutlined, FilterOutlined, DollarOutlined, ClockCircleOutlined, ExclamationCircleOutlined, FileTextOutlined, DownloadOutlined, LeftOutlined } from '@ant-design/icons';
+import {
+  Modal,
+  Form,
+  Input,
+  Button,
+  Select,
+  DatePicker,
+  InputNumber,
+  message,
+  Table,
+  Tag,
+  Card,
+  Space,
+  Tooltip,
+  Row,
+  Col,
+  Statistic,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  EyeOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+  SearchOutlined,
+  FilterOutlined,
+  DollarOutlined,
+  ClockCircleOutlined,
+  ExclamationCircleOutlined,
+  FileTextOutlined,
+  DownloadOutlined,
+  LeftOutlined,
+} from '@ant-design/icons';
 import dayjs from 'dayjs';
 import type {
   Invoice,
@@ -9,7 +40,7 @@ import type {
   InvoiceFilter,
   InvoiceStatus,
   InvoiceStats,
-  InvoiceHistory
+  InvoiceHistory,
 } from '../../types/invoice';
 import type { Vendor } from '../../types/vendor';
 import {
@@ -20,12 +51,12 @@ import {
   updateInvoiceStatus,
   getInvoiceStats,
   getInvoiceHistory,
-  handleInvoiceAPIError
+  handleInvoiceAPIError,
 } from '../../services/invoiceAPI';
 import { getAllVendors } from '../../services/vendorAPI';
-import ViewIcon from "../../assets/view-icon.svg";
-import EditIcon from "../../assets/edit.svg";
-import UploadImage from "../../assets/upload-icon.svg";
+import ViewIcon from '../../assets/view-icon.svg';
+import EditIcon from '../../assets/edit.svg';
+import UploadImage from '../../assets/upload-icon.svg';
 import Upload from '../../components/shared/form-elements/Upload';
 
 // Department API helpers
@@ -91,7 +122,8 @@ export default function InvoiceManagementPage() {
       setTableLoading(true);
       const filters: InvoiceFilter = {};
       if (searchTerm) filters.search = searchTerm;
-      if (statusFilter !== 'ALL') filters.status = statusFilter as InvoiceStatus;
+      if (statusFilter !== 'ALL')
+        filters.status = statusFilter as InvoiceStatus;
       if (vendorFilter !== 'ALL') filters.vendor_id = vendorFilter;
       if (departmentFilter !== 'ALL') filters.department = departmentFilter;
 
@@ -140,7 +172,9 @@ export default function InvoiceManagementPage() {
     try {
       const invoiceData = {
         ...values,
-        invoice_date: values.invoice_date ? values.invoice_date.format('YYYY-MM-DD') : null,
+        invoice_date: values.invoice_date
+          ? values.invoice_date.format('YYYY-MM-DD')
+          : null,
         due_date: values.due_date ? values.due_date.format('YYYY-MM-DD') : null,
       };
       await createInvoice(invoiceData);
@@ -278,13 +312,20 @@ export default function InvoiceManagementPage() {
 
   const getStatusColor = (status: InvoiceStatus) => {
     switch (status) {
-      case 'DRAFT': return 'default';
-      case 'PENDING_APPROVAL': return 'processing';
-      case 'APPROVED_FOR_PAYMENT': return 'success';
-      case 'PAID': return 'success';
-      case 'REJECTED': return 'error';
-      case 'OVERDUE': return 'error';
-      default: return 'default';
+      case 'DRAFT':
+        return 'default';
+      case 'PENDING_APPROVAL':
+        return 'processing';
+      case 'APPROVED_FOR_PAYMENT':
+        return 'success';
+      case 'PAID':
+        return 'success';
+      case 'REJECTED':
+        return 'error';
+      case 'OVERDUE':
+        return 'error';
+      default:
+        return 'default';
     }
   };
 
@@ -303,16 +344,23 @@ export default function InvoiceManagementPage() {
     }
   };
 
-  const filteredInvoices = invoices.filter(invoice => {
+  const filteredInvoices = invoices.filter((invoice) => {
     const matchesSearch =
       invoice.invoice_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice?.vendor?.vendor_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      invoice?.department?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      invoice?.vendor?.vendor_name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      invoice?.department?.name
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       invoice.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesStatus = statusFilter === 'ALL' || invoice.status === statusFilter;
-    const matchesVendor = vendorFilter === 'ALL' || invoice.vendor_id === vendorFilter;
-    const matchesDepartment = departmentFilter === 'ALL' || invoice.department_id === departmentFilter;
+    const matchesStatus =
+      statusFilter === 'ALL' || invoice.status === statusFilter;
+    const matchesVendor =
+      vendorFilter === 'ALL' || invoice.vendor_id === vendorFilter;
+    const matchesDepartment =
+      departmentFilter === 'ALL' || invoice.department_id === departmentFilter;
 
     return matchesSearch && matchesStatus && matchesVendor && matchesDepartment;
   });
@@ -325,7 +373,9 @@ export default function InvoiceManagementPage() {
       render: (text: string, record: Invoice) => (
         <div>
           <div className="font-medium">{text}</div>
-          <div className="text-gray-500 text-sm">{formatDate(record.invoice_date)}</div>
+          <div className="text-sm text-gray-500">
+            {formatDate(record.invoice_date)}
+          </div>
         </div>
       ),
     },
@@ -334,9 +384,7 @@ export default function InvoiceManagementPage() {
       dataIndex: 'vendor',
       key: 'vendor',
       render: (vendor: any) => (
-        <span className="">
-          {vendor ? vendor.vendor_name : ''}
-        </span>
+        <span className="">{vendor ? vendor.vendor_name : ''}</span>
       ),
     },
     {
@@ -344,9 +392,7 @@ export default function InvoiceManagementPage() {
       dataIndex: 'department',
       key: 'department',
       render: (department: any) => (
-        <span className="">
-          {department ? department.name : ''}
-        </span>
+        <span className="">{department ? department.name : ''}</span>
       ),
     },
     {
@@ -354,9 +400,7 @@ export default function InvoiceManagementPage() {
       dataIndex: 'amount',
       key: 'amount',
       render: (amount: number) => (
-        <span className="">
-          {formatCurrency(amount)}
-        </span>
+        <span className="">{formatCurrency(amount)}</span>
       ),
     },
     {
@@ -374,9 +418,7 @@ export default function InvoiceManagementPage() {
       dataIndex: 'status',
       key: 'status',
       render: (status: InvoiceStatus) => (
-        <Tag color={getStatusColor(status)}>
-          {status.replace('_', ' ')}
-        </Tag>
+        <Tag color={getStatusColor(status)}>{status.replace('_', ' ')}</Tag>
       ),
     },
     {
@@ -386,17 +428,23 @@ export default function InvoiceManagementPage() {
         <Space>
           <Tooltip title="View Details">
             <Button
-              className='table-action-button'
+              className="table-action-button"
               type="text"
               onClick={() => openViewModal(record)}
-            >  <img src={ViewIcon} alt="view" /></Button>
+            >
+              {' '}
+              <img src={ViewIcon} alt="view" />
+            </Button>
           </Tooltip>
           <Tooltip title="Edit Invoice">
             <Button
-              className='table-action-button'
+              className="table-action-button"
               type="text"
               onClick={() => openEditModal(record)}
-            >  <img src={EditIcon} alt="Edit" /></Button>
+            >
+              {' '}
+              <img src={EditIcon} alt="Edit" />
+            </Button>
           </Tooltip>
           {/* {record.status === 'PENDING_APPROVAL' && (
                         <Tooltip title="Approve Invoice">
@@ -420,12 +468,8 @@ export default function InvoiceManagementPage() {
     },
   ];
 
-
-
   return (
     <div className="venue-management-page">
-
-
       {/* Filters */}
       <Card
         className="vanue-management-card mb-6"
@@ -544,11 +588,7 @@ export default function InvoiceManagementPage() {
             >
               Cancel
             </Button>
-            <Button
-              className="fill-dark-btn"
-              type="primary"
-              htmlType="submit"
-            >
+            <Button className="fill-dark-btn" type="primary" htmlType="submit">
               Log Invoice
             </Button>
           </div>
@@ -658,9 +698,7 @@ export default function InvoiceManagementPage() {
                 className="input-field-main"
                 name="due_date"
                 label="Due Date"
-                rules={[
-                  { required: true, message: 'Please select due date' },
-                ]}
+                rules={[{ required: true, message: 'Please select due date' }]}
               >
                 <DatePicker
                   className="input-field-inn-datepicker"
@@ -700,22 +738,23 @@ export default function InvoiceManagementPage() {
           editForm.resetFields();
           setSelectedInvoice(null);
         }}
-        footer={<div className="modal-custom-footer">
-          <Button
-            className="fill-grey-btn"
-            onClick={() => {
-              setEditInvoiceModalOpen(false);
-              editForm.resetFields();
-              setSelectedInvoice(null);
-            }}
-          >
-            Cancel
-          </Button>
-          <Button className="fill-dark-btn" type="primary" htmlType="submit">
-            Update Invoice
-          </Button>
-
-        </div>}
+        footer={
+          <div className="modal-custom-footer">
+            <Button
+              className="fill-grey-btn"
+              onClick={() => {
+                setEditInvoiceModalOpen(false);
+                editForm.resetFields();
+                setSelectedInvoice(null);
+              }}
+            >
+              Cancel
+            </Button>
+            <Button className="fill-dark-btn" type="primary" htmlType="submit">
+              Update Invoice
+            </Button>
+          </div>
+        }
         width={600}
       >
         <Form form={editForm} layout="vertical" onFinish={handleEditInvoice}>
@@ -729,7 +768,10 @@ export default function InvoiceManagementPage() {
                   { required: true, message: 'Please enter invoice number' },
                 ]}
               >
-                <Input className="input-field-inn" placeholder="Enter invoice number" />
+                <Input
+                  className="input-field-inn"
+                  placeholder="Enter invoice number"
+                />
               </Form.Item>
             </Col>
             <Col span={24} md={12}>
@@ -739,7 +781,10 @@ export default function InvoiceManagementPage() {
                 label="Vendor"
                 rules={[{ required: true, message: 'Please select vendor' }]}
               >
-                <Select className="input-field-inn-select" placeholder="Select vendor">
+                <Select
+                  className="input-field-inn-select"
+                  placeholder="Select vendor"
+                >
                   {vendors.map((vendor) => (
                     <Select.Option key={vendor.id} value={vendor.id}>
                       {vendor.vendor_name}
@@ -760,7 +805,10 @@ export default function InvoiceManagementPage() {
                   { required: true, message: 'Please select department' },
                 ]}
               >
-                <Select className="input-field-inn-select" placeholder="Select department">
+                <Select
+                  className="input-field-inn-select"
+                  placeholder="Select department"
+                >
                   {departments.map((department) => (
                     <Select.Option key={department.ID} value={department.ID}>
                       {department.name}
@@ -801,7 +849,10 @@ export default function InvoiceManagementPage() {
                   { required: true, message: 'Please select invoice date' },
                 ]}
               >
-                <DatePicker className="input-field-inn-datepicker" style={{ width: '100%' }} />
+                <DatePicker
+                  className="input-field-inn-datepicker"
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             </Col>
             <Col span={24} md={12}>
@@ -809,11 +860,12 @@ export default function InvoiceManagementPage() {
                 className="input-field-main"
                 name="due_date"
                 label="Due Date"
-                rules={[
-                  { required: true, message: 'Please select due date' },
-                ]}
+                rules={[{ required: true, message: 'Please select due date' }]}
               >
-                <DatePicker className="input-field-inn-datepicker" style={{ width: '100%' }} />
+                <DatePicker
+                  className="input-field-inn-datepicker"
+                  style={{ width: '100%' }}
+                />
               </Form.Item>
             </Col>
           </Row>
@@ -824,10 +876,12 @@ export default function InvoiceManagementPage() {
             label="Description"
             rules={[{ required: true, message: 'Please enter description' }]}
           >
-            <Input.TextArea className="input-field-inn-textarea" rows={3} placeholder="Enter description" />
+            <Input.TextArea
+              className="input-field-inn-textarea"
+              rows={3}
+              placeholder="Enter description"
+            />
           </Form.Item>
-
-
         </Form>
       </Modal>
 
@@ -936,8 +990,7 @@ export default function InvoiceManagementPage() {
                   <h6 className="view-vendor-head">Current Status</h6>
                   <div className="view-vendor-detail approved-status">
                     <CheckCircleOutlined className="mr-2 text-green-600" />
-                    <Tag
-                      color={getStatusColor(selectedInvoice.status)}  >
+                    <Tag color={getStatusColor(selectedInvoice.status)}>
                       {selectedInvoice.status.replace('_', ' ')}
                     </Tag>
                   </div>
@@ -970,9 +1023,7 @@ export default function InvoiceManagementPage() {
 
             {/* Invoice History Section */}
             <div className="view-vendor-detail-maincard pt-6">
-              <h4>
-                Invoice History
-              </h4>
+              <h4>Invoice History</h4>
 
               {/* History List */}
               {historyLoading ? (
@@ -984,14 +1035,15 @@ export default function InvoiceManagementPage() {
                   {invoiceHistory.map((history, index) => (
                     <div
                       key={history.id}
-                      className={`rounded-lg border p-4 ${history.action === 'APPROVED'
+                      className={`rounded-lg border p-4 ${
+                        history.action === 'APPROVED'
                           ? 'border-green-200 bg-green-50'
                           : history.action === 'REJECTED'
                             ? 'border-red-200 bg-red-50'
                             : 'border-gray-200 bg-gray-50'
-                        }`}
+                      }`}
                     >
-                      <div className="flex items-center gap-3 justify-between">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex-1">
                           <div className="mb-2 flex items-center gap-2">
                             <span className="font-medium text-gray-900">
@@ -1071,21 +1123,31 @@ export default function InvoiceManagementPage() {
         open={approveInvoiceModalOpen}
         onCancel={() => setApproveInvoiceModalOpen(false)}
         footer={[
-          <div className="modal-custom-footer" >
+          <div className="modal-custom-footer">
             <Button
               key="cancel"
-              className='fill-grey-btn'
+              className="fill-grey-btn"
               onClick={() => setApproveInvoiceModalOpen(false)}
             >
               Cancel
             </Button>
-            <Button className='fill-red-btn' key="reject" danger onClick={handleRejectInvoice}>
+            <Button
+              className="fill-red-btn"
+              key="reject"
+              danger
+              onClick={handleRejectInvoice}
+            >
               Reject
             </Button>
-            <Button className='fill-green-btn' key="approve" type="primary" onClick={handleApproveInvoice}>
+            <Button
+              className="fill-green-btn"
+              key="approve"
+              type="primary"
+              onClick={handleApproveInvoice}
+            >
               Approve
             </Button>
-          </div>
+          </div>,
         ]}
       >
         {selectedInvoice && (
@@ -1151,4 +1213,4 @@ export default function InvoiceManagementPage() {
       </Modal>
     </div>
   );
-} 
+}

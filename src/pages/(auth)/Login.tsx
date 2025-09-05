@@ -43,6 +43,7 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
+        // 'http://103.189.173.7:8080/api/admin/auth/login',
         'http://103.189.173.7:8080/api/admin/auth/login',
         {
           method: 'POST',

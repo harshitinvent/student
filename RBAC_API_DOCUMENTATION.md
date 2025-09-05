@@ -1,15 +1,19 @@
 # RBAC API Documentation
 
 ## Overview
+
 This document contains all the required APIs for the Role-Based Access Control (RBAC) system in the university admin panel.
 
 ## Base URL
+
 ```
 http://103.189.173.7:8080/api
 ```
 
 ## Authentication
+
 All APIs require Bearer token authentication:
+
 ```
 Authorization: Bearer {jwt_token}
 ```
@@ -19,10 +23,12 @@ Authorization: Bearer {jwt_token}
 ## 1. Role Management APIs
 
 ### 1.1 Get All Roles
+
 **Endpoint:** `GET /roles`  
 **Description:** Retrieve all roles with their permissions
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -49,10 +55,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 1.2 Get Role by ID
+
 **Endpoint:** `GET /roles/{roleId}`  
 **Description:** Retrieve a specific role by ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -69,10 +77,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 1.3 Create Role
+
 **Endpoint:** `POST /roles`  
 **Description:** Create a new role
 
 **Request Body:**
+
 ```json
 {
   "name": "Department Head",
@@ -82,6 +92,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -98,20 +109,28 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 1.4 Update Role
+
 **Endpoint:** `PUT /roles/{roleId}`  
 **Description:** Update an existing role
 
 **Request Body:**
+
 ```json
 {
   "name": "Updated Department Head",
   "description": "Updated description",
-  "permissions": ["dashboard_read", "students_read", "students_write", "teachers_read"],
+  "permissions": [
+    "dashboard_read",
+    "students_read",
+    "students_write",
+    "teachers_read"
+  ],
   "isActive": true
 }
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -128,10 +147,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 1.5 Delete Role
+
 **Endpoint:** `DELETE /roles/{roleId}`  
 **Description:** Delete a role
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -144,10 +165,12 @@ Authorization: Bearer {jwt_token}
 ## 2. Permission Management APIs
 
 ### 2.1 Get All Permissions
+
 **Endpoint:** `GET /permissions`  
 **Description:** Retrieve all available permissions
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -171,10 +194,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 2.2 Get Permissions by Module
+
 **Endpoint:** `GET /permissions/module/{moduleName}`  
 **Description:** Retrieve permissions for a specific module
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -216,10 +241,12 @@ Authorization: Bearer {jwt_token}
 ## 3. User Management APIs
 
 ### 3.1 Get All Users with Roles
+
 **Endpoint:** `GET /users/with-roles`  
 **Description:** Retrieve all users with their assigned roles
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -258,10 +285,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 3.2 Get User by ID with Roles
+
 **Endpoint:** `GET /users/{userId}/with-roles`  
 **Description:** Retrieve a specific user with their roles
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -281,10 +310,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 3.3 Create User
+
 **Endpoint:** `POST /users`  
 **Description:** Create a new user
 
 **Request Body:**
+
 ```json
 {
   "firstName": "Jane",
@@ -297,6 +328,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -315,10 +347,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 3.4 Update User
+
 **Endpoint:** `PUT /users/{userId}`  
 **Description:** Update an existing user
 
 **Request Body:**
+
 ```json
 {
   "firstName": "Jane",
@@ -330,6 +364,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -348,10 +383,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 3.5 Delete User
+
 **Endpoint:** `DELETE /users/{userId}`  
 **Description:** Delete a user
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -364,10 +401,12 @@ Authorization: Bearer {jwt_token}
 ## 4. User Role Assignment APIs
 
 ### 4.1 Assign Role to User
+
 **Endpoint:** `POST /users/assign-role`  
 **Description:** Assign a role to a user
 
 **Request Body:**
+
 ```json
 {
   "userId": "user_001",
@@ -376,6 +415,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -384,10 +424,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 4.2 Remove Role from User
+
 **Endpoint:** `DELETE /users/{userId}/roles/{roleId}`  
 **Description:** Remove a role from a user
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -400,10 +442,12 @@ Authorization: Bearer {jwt_token}
 ## 5. User Permissions APIs
 
 ### 5.1 Get Current User Permissions
+
 **Endpoint:** `GET /users/me/permissions`  
 **Description:** Get permissions for the currently logged-in user
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -443,10 +487,12 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 5.2 Get User Permissions by ID
+
 **Endpoint:** `GET /users/{userId}/permissions`  
 **Description:** Get permissions for a specific user
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -481,18 +527,17 @@ Authorization: Bearer {jwt_token}
 ## 6. Error Responses
 
 ### 6.1 Validation Error
+
 ```json
 {
   "success": false,
   "message": "Validation failed",
-  "errors": [
-    "Name is required",
-    "Email must be valid"
-  ]
+  "errors": ["Name is required", "Email must be valid"]
 }
 ```
 
 ### 6.2 Not Found Error
+
 ```json
 {
   "success": false,
@@ -501,6 +546,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 6.3 Unauthorized Error
+
 ```json
 {
   "success": false,
@@ -509,6 +555,7 @@ Authorization: Bearer {jwt_token}
 ```
 
 ### 6.4 Server Error
+
 ```json
 {
   "success": false,
@@ -521,6 +568,7 @@ Authorization: Bearer {jwt_token}
 ## 7. Database Schema
 
 ### 7.1 Roles Table
+
 ```sql
 CREATE TABLE roles (
   id VARCHAR(36) PRIMARY KEY,
@@ -533,6 +581,7 @@ CREATE TABLE roles (
 ```
 
 ### 7.2 Permissions Table
+
 ```sql
 CREATE TABLE permissions (
   id VARCHAR(36) PRIMARY KEY,
@@ -544,6 +593,7 @@ CREATE TABLE permissions (
 ```
 
 ### 7.3 Role Permissions Table
+
 ```sql
 CREATE TABLE role_permissions (
   role_id VARCHAR(36),
@@ -555,6 +605,7 @@ CREATE TABLE role_permissions (
 ```
 
 ### 7.4 Users Table
+
 ```sql
 CREATE TABLE users (
   id VARCHAR(36) PRIMARY KEY,
@@ -570,6 +621,7 @@ CREATE TABLE users (
 ```
 
 ### 7.5 User Roles Table
+
 ```sql
 CREATE TABLE user_roles (
   id VARCHAR(36) PRIMARY KEY,
@@ -588,6 +640,7 @@ CREATE TABLE user_roles (
 ## 8. Sample Data
 
 ### 8.1 Sample Permissions
+
 ```sql
 INSERT INTO permissions (id, name, module, action, description) VALUES
 ('dashboard_read', 'View Dashboard', 'dashboard', 'read', 'Can view the main dashboard'),
@@ -603,6 +656,7 @@ INSERT INTO permissions (id, name, module, action, description) VALUES
 ```
 
 ### 8.2 Sample Roles
+
 ```sql
 INSERT INTO roles (id, name, description, is_active) VALUES
 ('role_001', 'Super Admin', 'Full system access with all permissions', true),
@@ -630,4 +684,4 @@ INSERT INTO roles (id, name, description, is_active) VALUES
 - JWT tokens should be used for authentication
 - CORS should be enabled for frontend integration
 - Input validation should be implemented for all endpoints
-- Error logging should be implemented for debugging 
+- Error logging should be implemented for debugging

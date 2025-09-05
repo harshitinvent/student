@@ -1,7 +1,7 @@
 import { Link, useParams } from 'react-router';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowLeft02Icon } from '@hugeicons/core-free-icons';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import PageTitleArea from '../../components/shared/PageTitleArea';
 import Button from '../../components/shared/Button';
@@ -44,13 +44,75 @@ export default function AccommodationPage() {
   const [loading, setLoading] = useState(true);
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [guestLabel, setGuestLabel] = useState<string | null>('1 guest');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [reservationStatusLocal, setReservationStatusLocal] =
+    useState<string>('');
+  const guests = useMemo(() => {
+    if (!guestLabel) return 0;
+    const match = guestLabel.match(/^(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  }, [guestLabel]);
+
+  const isValid = useMemo(() => {
+    if (!checkIn || !checkOut) return false;
+    if (!guests || guests < 1) return false;
+    if (checkOut <= checkIn) return false;
+    if (roomData && roomData.capacity && guests > roomData.capacity)
+      return false;
+    return true;
+  }, [checkIn, checkOut, guests, roomData]);
+
+  const effectiveReservationStatus = (
+    reservationStatusLocal ||
+    roomData?.reservation_status ||
+    ''
+  ).trim();
+  const hasReservationStatus = effectiveReservationStatus.length > 0;
+  const statusTextMap: Record<string, string> = {
+    PENDING: 'Pending',
+    APPROVED: 'Approved',
+    REJECTED: 'Rejected',
+  };
+  const isReserveDisabled = !isValid || isSubmitting || hasReservationStatus;
+
+  const handleReserve = async () => {
+    if (!id || !isValid || !checkIn || !checkOut) return;
+    try {
+      setIsSubmitting(true);
+      const payload = {
+        checkIn: checkIn.toISOString(),
+        checkOut: checkOut.toISOString(),
+        guests,
+        roomId: id,
+      };
+
+      const reservation = await roomsAPI.reserveRoom(id, payload as any);
+      const statusRaw =
+        (reservation &&
+          reservation.data &&
+          (reservation.data.reservation_status ?? reservation.data.status)) ??
+        reservation?.reservation_status ??
+        reservation?.status ??
+        '';
+      const normalizedStatus =
+        typeof statusRaw === 'string' ? statusRaw.trim() : '';
+      if (normalizedStatus) {
+        setReservationStatusLocal(normalizedStatus);
+      }
+    } catch (e: any) {
+      console.error(e);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   useEffect(() => {
     const fetchRoomData = async () => {
       if (id) {
         try {
           setLoading(true);
           const room = await roomsAPI.getRoomById(id);
-          setRoomData(room.data);
+          setRoomData(room.data || []);
         } catch (error) {
           console.error('Error fetching room data:', error);
           // Fallback to mock data if API fails
@@ -440,7 +502,8 @@ export default function AccommodationPage() {
                             }
                           }}
                           disablePast
-                          views={['day']}
+                          // views={['day']}
+                          format="dd-MM-yyyy"
                           slotProps={{ textField: { fullWidth: true } as any }}
                         />
                       </LocalizationProvider>
@@ -453,7 +516,8 @@ export default function AccommodationPage() {
                           }
                           disablePast
                           minDate={checkIn ?? undefined}
-                          views={['day']}
+                          // views={['day']}
+                          format="dd-MM-yyyy"
                           slotProps={{ textField: { fullWidth: true } as any }}
                         />
                       </LocalizationProvider>
@@ -471,16 +535,35 @@ export default function AccommodationPage() {
                         list={['1 guest', '2 guest', '3 guests', '4 guests']}
                         isFullWidthList
                         direction={'down'}
+                        value={guestLabel}
+                        onChange={setGuestLabel}
                       />
                     </div>
 
-                    <Button className={'mt-25 w-full'}>Reserve</Button>
+                    <Button
+                      className={
+                        'mt-25 w-full ' +
+                        (isReserveDisabled
+                          ? 'cursor-not-allowed opacity-50'
+                          : '')
+                      }
+                      disabled={isReserveDisabled}
+                      onClick={handleReserve}
+                    >
+                      {isSubmitting
+                        ? 'Submitting...'
+                        : hasReservationStatus
+                          ? statusTextMap[
+                              effectiveReservationStatus.toUpperCase()
+                            ] || effectiveReservationStatus
+                          : 'Reserve'}
+                    </Button>
                   </div>
                 </div>
               </div>
               <div className="flex gap-12">
                 <Button className={'mt-25 w-250'}>
-                  {roomData.amenities.length} amenities
+                  {roomData?.amenities?.length} amenities
                 </Button>
                 {/* <Button
                   style="transparent"

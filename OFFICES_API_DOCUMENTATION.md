@@ -1,15 +1,19 @@
 # OFFICES MODULE API DOCUMENTATION
 
 ## Overview
+
 The Offices module provides comprehensive meeting management, video conferencing, recording, and storage capabilities for the school management system.
 
 ## Base URL
+
 ```
 http://103.189.173.7:8080/api/offices
 ```
 
 ## Authentication
+
 All endpoints require Bearer token authentication:
+
 ```
 Authorization: Bearer <your-jwt-token>
 ```
@@ -19,9 +23,11 @@ Authorization: Bearer <your-jwt-token>
 ## 1. MEETING MANAGEMENT APIs
 
 ### 1.1 Create Meeting
+
 **Endpoint:** `POST /api/offices/meetings`
 
 **Request Body:**
+
 ```json
 {
   "title": "Team Standup Meeting",
@@ -35,6 +41,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -61,9 +68,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 1.2 Get My Meetings
+
 **Endpoint:** `GET /api/offices/meetings`
 
 **Query Parameters:**
+
 - `status` (optional): SCHEDULED, ONGOING, COMPLETED, CANCELLED
 - `meeting_type` (optional): AD_HOC, STUDY_GROUP
 - `start_date` (optional): YYYY-MM-DD
@@ -72,6 +81,7 @@ Authorization: Bearer <your-jwt-token>
 - `limit` (optional): Items per page (default: 10)
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -99,9 +109,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 1.3 Get Meeting by ID
+
 **Endpoint:** `GET /api/offices/meetings/{meeting_id}`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -126,9 +138,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 1.4 Update Meeting
+
 **Endpoint:** `PUT /api/offices/meetings/{meeting_id}`
 
 **Request Body:**
+
 ```json
 {
   "title": "Updated Team Standup",
@@ -140,6 +154,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -156,9 +171,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 1.5 Delete Meeting
+
 **Endpoint:** `DELETE /api/offices/meetings/{meeting_id}`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -167,9 +184,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 1.6 Join Meeting
+
 **Endpoint:** `POST /api/offices/meetings/{meeting_id}/join`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -181,9 +200,7 @@ Authorization: Bearer <your-jwt-token>
     },
     "webrtc_config": {
       "signaling_server": "wss://signaling.example.com",
-      "ice_servers": [
-        { "urls": "stun:stun.l.google.com:19302" }
-      ],
+      "ice_servers": [{ "urls": "stun:stun.l.google.com:19302" }],
       "room_id": "meeting_123"
     },
     "participants": [],
@@ -197,12 +214,15 @@ Authorization: Bearer <your-jwt-token>
 ## 2. RECORDING MANAGEMENT APIs
 
 ### 2.1 Get Meeting Recordings
+
 **Endpoint:** `GET /api/offices/recordings`
 
 **Query Parameters:**
+
 - `meeting_id` (optional): Filter by meeting ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -223,9 +243,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 2.2 Start Recording
+
 **Endpoint:** `POST /api/offices/recordings/start`
 
 **Request Body:**
+
 ```json
 {
   "meeting_id": "meeting_123",
@@ -234,6 +256,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -248,9 +271,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 2.3 Stop Recording
+
 **Endpoint:** `POST /api/offices/recordings/stop`
 
 **Request Body:**
+
 ```json
 {
   "meeting_id": "meeting_123"
@@ -258,6 +283,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -270,9 +296,11 @@ Authorization: Bearer <your-jwt-token>
 ## 3. STORAGE MANAGEMENT APIs
 
 ### 3.1 Get User Storage
+
 **Endpoint:** `GET /api/offices/storage`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -295,9 +323,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 3.2 Upgrade Storage Plan
+
 **Endpoint:** `POST /api/offices/storage/upgrade`
 
 **Request Body:**
+
 ```json
 {
   "plan_id": "premium_plan",
@@ -306,6 +336,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -324,9 +355,11 @@ Authorization: Bearer <your-jwt-token>
 ## 4. CHAT APIs
 
 ### 4.1 Get Meeting Chat
+
 **Endpoint:** `GET /api/offices/chat/{meeting_id}`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -350,9 +383,11 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 4.2 Send Chat Message
+
 **Endpoint:** `POST /api/offices/chat/{meeting_id}`
 
 **Request Body:**
+
 ```json
 {
   "message": "Hello everyone!"
@@ -360,6 +395,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -379,17 +415,17 @@ Authorization: Bearer <your-jwt-token>
 ## 5. WEBRTC APIs
 
 ### 5.1 Get WebRTC Configuration
+
 **Endpoint:** `GET /api/offices/webrtc/config/{meeting_id}`
 
 **Response:**
+
 ```json
 {
   "success": true,
   "data": {
     "signaling_server": "wss://signaling.example.com",
-    "ice_servers": [
-      { "urls": "stun:stun.l.google.com:19302" }
-    ],
+    "ice_servers": [{ "urls": "stun:stun.l.google.com:19302" }],
     "room_id": "meeting_123"
   }
 }
@@ -400,9 +436,11 @@ Authorization: Bearer <your-jwt-token>
 ## 6. STATISTICS APIs
 
 ### 6.1 Get Meeting Statistics
+
 **Endpoint:** `GET /api/offices/stats/{meeting_id}`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -423,9 +461,11 @@ Authorization: Bearer <your-jwt-token>
 ## 7. AUTO-CREATE APIs
 
 ### 7.1 Create Meeting from Class
+
 **Endpoint:** `POST /api/offices/meetings/auto-create`
 
 **Request Body:**
+
 ```json
 {
   "class_id": "class_123",
@@ -434,6 +474,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -454,9 +495,11 @@ Authorization: Bearer <your-jwt-token>
 ## 8. INVITATION APIs
 
 ### 8.1 Send Meeting Invitations
+
 **Endpoint:** `POST /api/offices/invitations`
 
 **Request Body:**
+
 ```json
 {
   "meeting_id": "meeting_123",
@@ -465,6 +508,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -481,12 +525,15 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 8.2 Get Meeting Invitations
+
 **Endpoint:** `GET /api/offices/invitations`
 
 **Query Parameters:**
+
 - `meeting_id` (optional): Filter by meeting ID
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -507,9 +554,11 @@ Authorization: Bearer <your-jwt-token>
 ## 9. COMMON USERS API
 
 ### 9.1 Get All Users
+
 **Endpoint:** `GET /api/common/users`
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -527,12 +576,15 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### 9.2 Search Users
+
 **Endpoint:** `GET /api/common/users?search={query}`
 
 **Query Parameters:**
+
 - `search`: Search query for name, username, or email
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -553,6 +605,7 @@ Authorization: Bearer <your-jwt-token>
 ## 10. ERROR RESPONSES
 
 ### Standard Error Format
+
 ```json
 {
   "success": false,
@@ -565,6 +618,7 @@ Authorization: Bearer <your-jwt-token>
 ```
 
 ### Common Error Codes
+
 - `UNAUTHORIZED`: Invalid or missing authentication token
 - `FORBIDDEN`: User doesn't have permission to access this resource
 - `NOT_FOUND`: Requested resource not found
@@ -576,6 +630,7 @@ Authorization: Bearer <your-jwt-token>
 ## 11. PAGINATION
 
 ### Pagination Response Format
+
 ```json
 {
   "success": true,
@@ -596,6 +651,7 @@ Authorization: Bearer <your-jwt-token>
 ## 12. WEBSOCKET EVENTS
 
 ### WebRTC Signaling Events
+
 ```json
 {
   "type": "offer|answer|ice-candidate|user-joined|user-left",
@@ -619,6 +675,7 @@ Authorization: Bearer <your-jwt-token>
 ## 14. DEPLOYMENT NOTES
 
 ### Environment Variables
+
 ```bash
 OFFICES_API_BASE_URL=http://103.189.173.7:8080/api
 OFFICES_SIGNALING_SERVER=wss://signaling.example.com
@@ -627,9 +684,11 @@ OFFICES_MAX_FILE_SIZE=1073741824
 ```
 
 ### Health Check
+
 **Endpoint:** `GET /api/offices/health`
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -643,9 +702,11 @@ OFFICES_MAX_FILE_SIZE=1073741824
 ## 15. TESTING
 
 ### Postman Collection
+
 Import the `Offices_API.postman_collection.json` file for testing all endpoints.
 
 ### Test Data
+
 Use the provided test users and meetings for development and testing purposes.
 
 ---
@@ -653,6 +714,7 @@ Use the provided test users and meetings for development and testing purposes.
 ## 16. SUPPORT
 
 For API support and questions:
+
 - **Email**: api-support@university.edu
 - **Documentation**: https://docs.university.edu/offices-api
-- **Status Page**: https://status.university.edu 
+- **Status Page**: https://status.university.edu

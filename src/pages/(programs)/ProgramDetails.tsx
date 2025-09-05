@@ -1,8 +1,25 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Table, Tag, Space, message, Modal, Form, Select, InputNumber, Tabs } from 'antd';
-import { PlusOutlined, EditOutlined, BookOutlined, LeftOutlined } from '@ant-design/icons';
+import {
+  Card,
+  Button,
+  Table,
+  Tag,
+  Space,
+  message,
+  Modal,
+  Form,
+  Select,
+  InputNumber,
+  Tabs,
+} from 'antd';
+import {
+  PlusOutlined,
+  EditOutlined,
+  BookOutlined,
+  LeftOutlined,
+} from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import EditIcon from "../../assets/edit.svg";
+import EditIcon from '../../assets/edit.svg';
 
 // Types
 type ProgramCourse = {
@@ -54,7 +71,9 @@ async function fetchProgram(id: string): Promise<Program> {
   return data.data || data;
 }
 
-async function fetchProgramCourses(programId: string): Promise<ProgramCourse[]> {
+async function fetchProgramCourses(
+  programId: string
+): Promise<ProgramCourse[]> {
   const res = await fetch(`${API_BASE}/${programId}/courses`, {
     headers: getAuthHeaders(),
   });
@@ -72,11 +91,14 @@ async function fetchAvailableCourses(): Promise<Course[]> {
   return data.data || data || [];
 }
 
-async function linkCourseToProgram(programId: string, data: {
-  course_id: string;
-  requirement_type: 'CORE' | 'ELECTIVE' | 'GENERAL_EDUCATION';
-  credits_allocated: number;
-}): Promise<any> {
+async function linkCourseToProgram(
+  programId: string,
+  data: {
+    course_id: string;
+    requirement_type: 'CORE' | 'ELECTIVE' | 'GENERAL_EDUCATION';
+    credits_allocated: number;
+  }
+): Promise<any> {
   const res = await fetch(`${API_BASE}/${programId}/courses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
@@ -86,7 +108,10 @@ async function linkCourseToProgram(programId: string, data: {
   return res.json();
 }
 
-async function unlinkCourseFromProgram(programId: string, courseId: string): Promise<any> {
+async function unlinkCourseFromProgram(
+  programId: string,
+  courseId: string
+): Promise<any> {
   const res = await fetch(`${API_BASE}/${programId}/courses/${courseId}`, {
     method: 'DELETE',
     headers: getAuthHeaders(),
@@ -114,13 +139,15 @@ export default function ProgramDetailsPage() {
       const [programData, availableCoursesData] = await Promise.all([
         fetchProgram(id),
         // fetchProgramCourses(id),
-        fetchAvailableCourses()
+        fetchAvailableCourses(),
       ]);
 
-
-      console.log("programData================= ", programData)
+      console.log('programData================= ', programData);
       // console.log("coursesData================= ", coursesData)
-      console.log("availableCoursesData================= ", availableCoursesData)
+      console.log(
+        'availableCoursesData================= ',
+        availableCoursesData
+      );
       setProgram(programData);
       // setProgramCourses(coursesData);
       setAvailableCourses(availableCoursesData.courses);
@@ -166,19 +193,27 @@ export default function ProgramDetailsPage() {
 
   const getRequirementTypeColor = (type: string) => {
     switch (type) {
-      case 'CORE': return 'red';
-      case 'ELECTIVE': return 'blue';
-      case 'GENERAL_EDUCATION': return 'green';
-      default: return 'default';
+      case 'CORE':
+        return 'red';
+      case 'ELECTIVE':
+        return 'blue';
+      case 'GENERAL_EDUCATION':
+        return 'green';
+      default:
+        return 'default';
     }
   };
 
   const getRequirementTypeLabel = (type: string) => {
     switch (type) {
-      case 'CORE': return 'Core';
-      case 'ELECTIVE': return 'Elective';
-      case 'GENERAL_EDUCATION': return 'General Education';
-      default: return type;
+      case 'CORE':
+        return 'Core';
+      case 'ELECTIVE':
+        return 'Elective';
+      case 'GENERAL_EDUCATION':
+        return 'General Education';
+      default:
+        return type;
     }
   };
 
@@ -242,8 +277,8 @@ export default function ProgramDetailsPage() {
   }
 
   // Filter out courses that are already linked
-  const unlinkedCourses = availableCourses.filter(course =>
-    !programCourses.some(pc => pc.course_id === course.ID)
+  const unlinkedCourses = availableCourses.filter(
+    (course) => !programCourses.some((pc) => pc.course_id === course.ID)
   );
 
   return (
@@ -329,7 +364,7 @@ export default function ProgramDetailsPage() {
                       Create Program
                     </Button>
                   </div>
-                  <div className='table-responsive'>
+                  <div className="table-responsive">
                     <Table
                       className="vanue-table"
                       columns={columns}
@@ -346,7 +381,7 @@ export default function ProgramDetailsPage() {
                             <Button
                               type="primary"
                               onClick={() => setLinkModalOpen(true)}
-                              className="mt-6 fill-dark-btn"
+                              className="fill-dark-btn mt-6"
                             >
                               Link First Course
                             </Button>
@@ -373,7 +408,7 @@ export default function ProgramDetailsPage() {
                       </p>
                     </div>
                   </div>
-                  <div className='table-responsive'>
+                  <div className="table-responsive">
                     <Table
                       className="vanue-table"
                       columns={[
@@ -472,26 +507,27 @@ export default function ProgramDetailsPage() {
           setLinkModalOpen(false);
           form.resetFields();
         }}
-        footer={<div className="modal-custom-footer">
-          <Button
-            className='fill-grey-btn'
-            onClick={() => {
-              setLinkModalOpen(false);
-              form.resetFields();
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            className='fill-dark-btn'
-            type="primary"
-            htmlType="submit"
-            loading={linkModalLoading}
-          >
-            Link Course
-          </Button>
-
-        </div>}
+        footer={
+          <div className="modal-custom-footer">
+            <Button
+              className="fill-grey-btn"
+              onClick={() => {
+                setLinkModalOpen(false);
+                form.resetFields();
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              className="fill-dark-btn"
+              type="primary"
+              htmlType="submit"
+              loading={linkModalLoading}
+            >
+              Link Course
+            </Button>
+          </div>
+        }
         width={450}
       >
         <Form
@@ -504,7 +540,7 @@ export default function ProgramDetailsPage() {
           }}
         >
           <Form.Item
-            className='input-field-main'
+            className="input-field-main"
             name="course_id"
             label="Select Course"
             rules={[{ required: true, message: 'Please select a course' }]}
@@ -524,7 +560,7 @@ export default function ProgramDetailsPage() {
           </Form.Item>
 
           <Form.Item
-            className='input-field-main'
+            className="input-field-main"
             name="requirement_type"
             label="Requirement Type"
             rules={[
@@ -543,7 +579,7 @@ export default function ProgramDetailsPage() {
           </Form.Item>
 
           <Form.Item
-            className='input-field-main'
+            className="input-field-main"
             name="credits_allocated"
             label="Credits Allocated"
             rules={[{ required: true, message: 'Please enter credits' }]}
@@ -553,13 +589,11 @@ export default function ProgramDetailsPage() {
               min={1}
               max={6}
               placeholder="Enter credits"
-              width={"100%"}
+              width={'100%'}
             />
           </Form.Item>
-
-
         </Form>
       </Modal>
     </div>
   );
-} 
+}

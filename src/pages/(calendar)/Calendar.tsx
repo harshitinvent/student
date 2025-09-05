@@ -1,6 +1,45 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar as AntCalendar, Button, Modal, Form, Select, Input, DatePicker, TimePicker, Card, Row, Col, Tag, Space, Tabs, Badge, message, Pagination, Drawer, Divider, Checkbox } from 'antd';
-import { PlusOutlined, CalendarOutlined, ClockCircleOutlined, UserOutlined, EnvironmentOutlined, BookOutlined, LeftOutlined, RightOutlined, SearchOutlined, ClearOutlined, FilterOutlined, DeleteOutlined, CheckOutlined, ReloadOutlined, ArrowRightOutlined, BellOutlined, DownOutlined } from '@ant-design/icons';
+import {
+  Calendar as AntCalendar,
+  Button,
+  Modal,
+  Form,
+  Select,
+  Input,
+  DatePicker,
+  TimePicker,
+  Card,
+  Row,
+  Col,
+  Tag,
+  Space,
+  Tabs,
+  Badge,
+  message,
+  Pagination,
+  Drawer,
+  Divider,
+  Checkbox,
+} from 'antd';
+import {
+  PlusOutlined,
+  CalendarOutlined,
+  ClockCircleOutlined,
+  UserOutlined,
+  EnvironmentOutlined,
+  BookOutlined,
+  LeftOutlined,
+  RightOutlined,
+  SearchOutlined,
+  ClearOutlined,
+  FilterOutlined,
+  DeleteOutlined,
+  CheckOutlined,
+  ReloadOutlined,
+  ArrowRightOutlined,
+  BellOutlined,
+  DownOutlined,
+} from '@ant-design/icons';
 import dayjs, { Dayjs } from 'dayjs';
 import { useUserContext } from '../../providers/user';
 import {
@@ -10,7 +49,7 @@ import {
   courseAPI,
   campusAPI,
   venueAPI,
-  classAPI
+  classAPI,
 } from '../../services/schedulingAPI';
 import {
   Year,
@@ -20,7 +59,7 @@ import {
   Campus,
   Venue,
   Class,
-  ClassMeetingTime
+  ClassMeetingTime,
 } from '../../types/scheduling';
 import { Color } from 'antd/es/color-picker';
 
@@ -62,82 +101,87 @@ interface ClassFormData {
 
 const Calendar: React.FC = React.memo(() => {
   const { hasPermission } = useUserContext();
-  const [viewMode, setViewMode] = useState<'weekly' | 'monthly' | 'daily'>('weekly');
+  const [viewMode, setViewMode] = useState<'weekly' | 'monthly' | 'daily'>(
+    'weekly'
+  );
   const [selectedDate, setSelectedDate] = useState<Dayjs>(dayjs());
-  const [isCreateClassModalVisible, setIsCreateClassModalVisible] = useState(false);
+  const [isCreateClassModalVisible, setIsCreateClassModalVisible] =
+    useState(false);
   const [createClassForm] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [isFilterDrawerVisible, setIsFilterDrawerVisible] = useState(false);
-  const [isClassDetailsModalVisible, setIsClassDetailsModalVisible] = useState(false);
-  const [selectedClassForDetails, setSelectedClassForDetails] = useState<Class | null>(null);
+  const [isClassDetailsModalVisible, setIsClassDetailsModalVisible] =
+    useState(false);
+  const [selectedClassForDetails, setSelectedClassForDetails] =
+    useState<Class | null>(null);
   const [isDetailsModalVisible, setIsDetailsModalVisible] = useState(false);
 
   // Custom CSS Styles - Exact screenshots design
   const styles = {
     calendarContainer: {
       minHeight: '100vh',
-      backgroundColor: '#f9fafb'
+      backgroundColor: '#f9fafb',
     },
     header: {
       backgroundColor: 'white',
       borderBottom: '1px solid #e5e7eb',
       padding: '24px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     headerLeft: {
       display: 'flex',
       flexDirection: 'column' as const,
-      gap: '8px'
+      gap: '8px',
     },
     headerTitle: {
       fontSize: '32px',
       fontWeight: 'bold',
       color: '#1f2937',
-      margin: 0
+      margin: 0,
     },
     headerSubtitle: {
       fontSize: '16px',
       color: '#6b7280',
-      margin: 0
+      margin: 0,
     },
     headerRight: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px'
+      gap: '16px',
     },
     filterButton: {
       height: '40px',
       border: '1px solid #d1d5db',
       borderRadius: '8px',
-      color: '#374151'
+      color: '#374151',
     },
     createButton: {
       height: '40px',
       backgroundColor: '#1890ff',
       borderColor: '#1890ff',
       borderRadius: '8px',
-      color: 'white'
+      color: 'white',
     },
     refreshButton: {
       height: '40px',
       border: '1px solid #d1d5db',
       borderRadius: '8px',
-      color: '#374151'
+      color: '#374151',
     },
     mainLayout: {
-      display: 'flex'
+      display: 'flex',
     },
     sidebar: {
       width: '320px',
       padding: '24px',
       backgroundColor: '#f9fafb',
       minHeight: 'calc(100vh - 120px)',
-      borderRight: '1px solid #e5e7eb'
+      borderRight: '1px solid #e5e7eb',
     },
     sidebarContent: {
       display: 'flex',
       flexDirection: 'column' as const,
-      gap: '16px'
+      gap: '16px',
     },
     createSidebarButton: {
       width: '100%',
@@ -145,7 +189,7 @@ const Calendar: React.FC = React.memo(() => {
       backgroundColor: '#000',
       borderColor: '#000',
       borderRadius: '8px',
-      color: 'white'
+      color: 'white',
     },
     selectActionsButton: {
       width: '100%',
@@ -157,20 +201,20 @@ const Calendar: React.FC = React.memo(() => {
       border: '1px solid #d1d5db',
       borderRadius: '8px',
       backgroundColor: 'white',
-      color: '#374151'
+      color: '#374151',
     },
     miniCalendar: {
       backgroundColor: 'white',
       borderRadius: '12px',
       padding: '16px',
       marginBottom: '24px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     miniCalendarHeader: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: '16px'
+      marginBottom: '16px',
     },
     miniCalendarNavButton: {
       background: 'none',
@@ -178,30 +222,30 @@ const Calendar: React.FC = React.memo(() => {
       color: '#6b7280',
       cursor: 'pointer',
       padding: '4px',
-      borderRadius: '4px'
+      borderRadius: '4px',
     },
     miniCalendarMonth: {
       fontSize: '14px',
       fontWeight: '600',
-      color: '#1f2937'
+      color: '#1f2937',
     },
     miniCalendarDays: {
       display: 'grid',
       gridTemplateColumns: 'repeat(7, 1fr)',
       gap: '4px',
-      marginBottom: '8px'
+      marginBottom: '8px',
     },
     miniCalendarDayHeader: {
       textAlign: 'center' as const,
       fontSize: '12px',
       fontWeight: '500',
       color: '#6b7280',
-      padding: '4px'
+      padding: '4px',
     },
     miniCalendarGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(7, 1fr)',
-      gap: '4px'
+      gap: '4px',
     },
     miniCalendarDay: {
       position: 'relative' as const,
@@ -210,16 +254,16 @@ const Calendar: React.FC = React.memo(() => {
       padding: '4px',
       cursor: 'pointer',
       borderRadius: '4px',
-      color: '#374151'
+      color: '#374151',
     },
     miniCalendarEmptyDay: {
-      padding: '4px'
+      padding: '4px',
     },
     miniCalendarSelectedDay: {
-      backgroundColor: '#e5e7eb'
+      backgroundColor: '#e5e7eb',
     },
     miniCalendarSelectedText: {
-      fontWeight: '600'
+      fontWeight: '600',
     },
     miniCalendarEventDot: {
       position: 'absolute' as const,
@@ -228,104 +272,104 @@ const Calendar: React.FC = React.memo(() => {
       transform: 'translateX(-50%)',
       width: '6px',
       height: '6px',
-      borderRadius: '50%'
+      borderRadius: '50%',
     },
     upcomingEvents: {
       backgroundColor: 'white',
       borderRadius: '12px',
       padding: '16px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     upcomingEventsTitle: {
       fontSize: '14px',
       fontWeight: '600',
       color: '#1f2937',
       marginBottom: '12px',
-      margin: '0 0 12px 0'
+      margin: '0 0 12px 0',
     },
     upcomingEventsList: {
       display: 'flex',
       flexDirection: 'column' as const,
-      gap: '12px'
+      gap: '12px',
     },
     upcomingEventItem: {
       display: 'flex',
       alignItems: 'center',
-      gap: '12px'
+      gap: '12px',
     },
     upcomingEventColorBar: {
       width: '4px',
       height: '32px',
-      borderRadius: '2px'
+      borderRadius: '2px',
     },
     upcomingEventContent: {
-      flex: 1
+      flex: 1,
     },
     upcomingEventTitle: {
       fontSize: '14px',
       fontWeight: '500',
       color: '#1f2937',
-      marginBottom: '4px'
+      marginBottom: '4px',
     },
     upcomingEventDate: {
       display: 'flex',
       alignItems: 'center',
       fontSize: '12px',
-      color: '#6b7280'
+      color: '#6b7280',
     },
     upcomingEventIcon: {
       marginRight: '4px',
-      fontSize: '12px'
+      fontSize: '12px',
     },
     upcomingEventArrow: {
       color: '#9ca3af',
-      fontSize: '12px'
+      fontSize: '12px',
     },
     mainContent: {
       flex: 1,
-      padding: '24px'
+      padding: '24px',
     },
     calendarCard: {
       backgroundColor: 'white',
       borderRadius: '12px',
       padding: '24px',
-      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
     },
     calendarHeader: {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginBottom: '24px'
+      marginBottom: '24px',
     },
     viewSelector: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px'
+      gap: '16px',
     },
     viewSelect: {
-      width: '120px'
+      width: '120px',
     },
     calendarNavigation: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px'
+      gap: '16px',
     },
     navButton: {
       border: 'none',
-      color: '#6b7280'
+      color: '#6b7280',
     },
     calendarTitle: {
       fontSize: '18px',
       fontWeight: '600',
-      color: '#1f2937'
+      color: '#1f2937',
     },
     todayButton: {
       height: '40px',
       border: '1px solid #d1d5db',
       borderRadius: '8px',
       color: '#374151',
-      backgroundColor: 'white'
-    }
+      backgroundColor: 'white',
+    },
   };
 
   // Multiple class creation states
@@ -349,8 +393,11 @@ const Calendar: React.FC = React.memo(() => {
   const [students, setStudents] = useState<any[]>([]);
 
   // Form states
-  const [selectedDateForClass, setSelectedDateForClass] = useState<Dayjs | null>(null);
-  const [selectedTimeRange, setSelectedTimeRange] = useState<[Dayjs, Dayjs] | null>(null);
+  const [selectedDateForClass, setSelectedDateForClass] =
+    useState<Dayjs | null>(null);
+  const [selectedTimeRange, setSelectedTimeRange] = useState<
+    [Dayjs, Dayjs] | null
+  >(null);
   const [selectedCourse, setSelectedCourse] = useState<string>('');
   const [selectedVenue, setSelectedVenue] = useState<string>('');
   const [selectedTeacher, setSelectedTeacher] = useState<string>('');
@@ -421,7 +468,7 @@ const Calendar: React.FC = React.memo(() => {
         class_time: null,
         is_recurring: false,
         recurrence_pattern: '',
-        recurrence_end_date: null
+        recurrence_end_date: null,
       };
       setClassForms([newForm]);
 
@@ -430,15 +477,13 @@ const Calendar: React.FC = React.memo(() => {
     }
   }, [isCreateClassModalVisible]); // ONLY modal visibility, nothing else
 
-
-
   const renderView = () => {
     switch (viewMode) {
-      case "daily":
+      case 'daily':
         return renderDailyView();
-      case "weekly":
+      case 'weekly':
         return renderWeeklyView();
-      case "monthly":
+      case 'monthly':
         return renderMonthlyView();
       default:
         return null;
@@ -450,17 +495,32 @@ const Calendar: React.FC = React.memo(() => {
       setLoading(true);
 
       // Single batch API call for ALL data - much faster than separate calls
-      const [yearsData, programsData, campusesData, classesData, teachersData, studentsData] = await Promise.all([
-        fetch('http://103.189.173.7:8080/api/common/years').then(res => res.json()),
-        fetch('http://103.189.173.7:8080/api/common/programs').then(res => res.json()),
-        fetch('http://103.189.173.7:8080/api/common/campuses').then(res => res.json()),
+      const [
+        yearsData,
+        programsData,
+        campusesData,
+        classesData,
+        teachersData,
+        studentsData,
+      ] = await Promise.all([
+        fetch('http://103.189.173.7:8080/api/common/years').then((res) =>
+          res.json()
+        ),
+        fetch('http://103.189.173.7:8080/api/common/programs').then((res) =>
+          res.json()
+        ),
+        fetch('http://103.189.173.7:8080/api/common/campuses').then((res) =>
+          res.json()
+        ),
         classAPI.getAllClasses({ semester_id: '' }),
-        fetch('http://103.189.173.7:8080/api/common/teachers').then(res => res.json()),
+        fetch('http://103.189.173.7:8080/api/common/teachers').then((res) =>
+          res.json()
+        ),
         fetch('http://103.189.173.7:8080/api/common/students', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
-        }).then(res => res.json())
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+        }).then((res) => res.json()),
       ]);
 
       // Set all data at once to prevent multiple re-renders
@@ -473,7 +533,10 @@ const Calendar: React.FC = React.memo(() => {
 
       console.log('=== DATA LOADING DEBUG ===');
       console.log('All data loaded successfully in single batch');
-      console.log('Classes count:', (classesData?.data || classesData || []).length);
+      console.log(
+        'Classes count:',
+        (classesData?.data || classesData || []).length
+      );
     } catch (error) {
       console.error('Error loading initial data:', error);
       message.error('Failed to load initial data');
@@ -485,7 +548,9 @@ const Calendar: React.FC = React.memo(() => {
   const loadSemestersByYear = async (yearId: string) => {
     try {
       console.log('Loading semesters for year:', yearId);
-      const response = await fetch(`http://103.189.173.7:8080/api/common/years/${yearId}/semesters?year_id=${yearId}`);
+      const response = await fetch(
+        `http://103.189.173.7:8080/api/common/years/${yearId}/semesters?year_id=${yearId}`
+      );
       const semestersData = await response.json();
       console.log('Semesters API response:', semestersData);
 
@@ -502,7 +567,9 @@ const Calendar: React.FC = React.memo(() => {
   const loadCoursesByProgram = async (programId: string) => {
     try {
       console.log('Loading courses for program:', programId);
-      const response = await fetch(`http://103.189.173.7:8080/api/common/programs/${programId}/courses?program_id=${programId}`);
+      const response = await fetch(
+        `http://103.189.173.7:8080/api/common/programs/${programId}/courses?program_id=${programId}`
+      );
       const coursesData = await response.json();
       console.log('Courses API response:', coursesData);
 
@@ -519,7 +586,9 @@ const Calendar: React.FC = React.memo(() => {
   const loadVenuesByCampus = async (campusId: string) => {
     try {
       console.log('Loading venues for campus:', campusId);
-      const response = await fetch(`http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`);
+      const response = await fetch(
+        `http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
+      );
       const venuesData = await response.json();
       console.log('Venues API response:', venuesData);
 
@@ -536,7 +605,9 @@ const Calendar: React.FC = React.memo(() => {
   const loadVenuesForForm = async (campusId: string) => {
     try {
       console.log('Loading venues for campus:', campusId);
-      const response = await fetch(`http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`);
+      const response = await fetch(
+        `http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
+      );
       const venuesData = await response.json();
       console.log('Venues API response:', venuesData);
 
@@ -556,8 +627,23 @@ const Calendar: React.FC = React.memo(() => {
     const [startTime, endTime] = selectedTimeRange;
     const dayOfWeek = selectedDateForClass.day();
 
-    const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-    const dayString = dayNames[dayOfWeek] as 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
+    const dayNames = [
+      'SUNDAY',
+      'MONDAY',
+      'TUESDAY',
+      'WEDNESDAY',
+      'THURSDAY',
+      'FRIDAY',
+      'SATURDAY',
+    ];
+    const dayString = dayNames[dayOfWeek] as
+      | 'SUNDAY'
+      | 'MONDAY'
+      | 'TUESDAY'
+      | 'WEDNESDAY'
+      | 'THURSDAY'
+      | 'FRIDAY'
+      | 'SATURDAY';
 
     const safeClasses = Array.isArray(classes) ? classes : [];
     const safeVenues = Array.isArray(venues) ? venues : [];
@@ -565,39 +651,45 @@ const Calendar: React.FC = React.memo(() => {
 
     // Check venue availability
     const unavailableVenues = safeClasses
-      .filter(cls => {
-        return cls.meeting_times?.some(mt =>
-          mt.day_of_week === dayString &&
-          mt.start_time === startTime.format('HH:mm') &&
-          mt.end_time === endTime.format('HH:mm')
+      .filter((cls) => {
+        return cls.meeting_times?.some(
+          (mt) =>
+            mt.day_of_week === dayString &&
+            mt.start_time === startTime.format('HH:mm') &&
+            mt.end_time === endTime.format('HH:mm')
         );
       })
-      .map(cls => cls.meeting_times?.find(mt =>
-        mt.day_of_week === dayString &&
-        mt.start_time === startTime.format('HH:mm') &&
-        mt.end_time === endTime.format('HH:mm')
-      )?.venue_id)
+      .map(
+        (cls) =>
+          cls.meeting_times?.find(
+            (mt) =>
+              mt.day_of_week === dayString &&
+              mt.start_time === startTime.format('HH:mm') &&
+              mt.end_time === endTime.format('HH:mm')
+          )?.venue_id
+      )
       .filter(Boolean);
 
-    const availableVenues = safeVenues.filter(venue =>
-      !unavailableVenues.includes(venue.id?.toString())
+    const availableVenues = safeVenues.filter(
+      (venue) => !unavailableVenues.includes(venue.id?.toString())
     );
     setAvailableVenues(availableVenues);
 
     // Check teacher availability
     const unavailableTeachers = safeClasses
-      .filter(cls => {
-        return cls.meeting_times?.some(mt =>
-          mt.day_of_week === dayString &&
-          mt.start_time === startTime.format('HH:mm') &&
-          mt.end_time === endTime.format('HH:mm')
+      .filter((cls) => {
+        return cls.meeting_times?.some(
+          (mt) =>
+            mt.day_of_week === dayString &&
+            mt.start_time === startTime.format('HH:mm') &&
+            mt.end_time === endTime.format('HH:mm')
         );
       })
-      .map(cls => cls.instructor_id)
+      .map((cls) => cls.instructor_id)
       .filter(Boolean);
 
-    const availableTeachers = safeTeachers.filter(teacher =>
-      !unavailableTeachers.includes(teacher.id?.toString())
+    const availableTeachers = safeTeachers.filter(
+      (teacher) => !unavailableTeachers.includes(teacher.id?.toString())
     );
     setAvailableTeachers(availableTeachers);
   };
@@ -618,8 +710,23 @@ const Calendar: React.FC = React.memo(() => {
       setLoading(true);
 
       const [startTime, endTime] = classTime;
-      const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-      const dayString = dayNames[classDate.day()] as 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
+      const dayNames = [
+        'SUNDAY',
+        'MONDAY',
+        'TUESDAY',
+        'WEDNESDAY',
+        'THURSDAY',
+        'FRIDAY',
+        'SATURDAY',
+      ];
+      const dayString = dayNames[classDate.day()] as
+        | 'SUNDAY'
+        | 'MONDAY'
+        | 'TUESDAY'
+        | 'WEDNESDAY'
+        | 'THURSDAY'
+        | 'FRIDAY'
+        | 'SATURDAY';
 
       // Single API call with all data including meeting date
       const requestData = {
@@ -641,20 +748,23 @@ const Calendar: React.FC = React.memo(() => {
         // Meeting date details
         meeting_date: classDate.format('YYYY-MM-DD'),
         is_recurring: false,
-        recurrence_pattern: ""
+        recurrence_pattern: '',
       };
 
       console.log('Sending request to backend:', requestData);
 
       // Call the new combined API endpoint
-      const response = await fetch('http://103.189.173.7:8080/api/v1/admin/academics/classes/with-meeting-time', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(requestData)
-      });
+      const response = await fetch(
+        'http://103.189.173.7:8080/api/v1/admin/academics/classes/with-meeting-time',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(requestData),
+        }
+      );
 
       if (!response.ok) {
         const errorData = await response.json();
@@ -683,9 +793,13 @@ const Calendar: React.FC = React.memo(() => {
 
       // Handle specific database errors
       if (error.message && error.message.includes('duplicated key')) {
-        message.error('A class with this combination already exists. Please use a different section code or check for duplicates.');
+        message.error(
+          'A class with this combination already exists. Please use a different section code or check for duplicates.'
+        );
       } else if (error.message && error.message.includes('constraint')) {
-        message.error('Database constraint violation. Please check your input data.');
+        message.error(
+          'Database constraint violation. Please check your input data.'
+        );
       } else {
         message.error(`Failed to create class: ${error.message}`);
       }
@@ -721,7 +835,12 @@ const Calendar: React.FC = React.memo(() => {
       const [startHour, startMinute] = cls.start_time.split(':').map(Number);
       const [endHour, endMinute] = cls.end_time.split(':').map(Number);
 
-      if (isNaN(startHour) || isNaN(startMinute) || isNaN(endHour) || isNaN(endMinute)) {
+      if (
+        isNaN(startHour) ||
+        isNaN(startMinute) ||
+        isNaN(endHour) ||
+        isNaN(endMinute)
+      ) {
         return;
       }
 
@@ -743,8 +862,8 @@ const Calendar: React.FC = React.memo(() => {
           start_time: cls.start_time,
           end_time: cls.end_time,
           venue_id: cls.venue?.id,
-          venue: cls.venue
-        }
+          venue: cls.venue,
+        },
       };
 
       events.push(event);
@@ -758,11 +877,11 @@ const Calendar: React.FC = React.memo(() => {
 
   // Weekly navigation functions
   const goToPreviousWeek = () => {
-    setCurrentWeek(prev => prev.subtract(1, 'week'));
+    setCurrentWeek((prev) => prev.subtract(1, 'week'));
   };
 
   const goToNextWeek = () => {
-    setCurrentWeek(prev => prev.add(1, 'week'));
+    setCurrentWeek((prev) => prev.add(1, 'week'));
   };
 
   const goToCurrentWeek = () => {
@@ -771,11 +890,11 @@ const Calendar: React.FC = React.memo(() => {
 
   // Monthly navigation functions
   const goToPreviousMonth = () => {
-    setCurrentMonth(prev => prev.subtract(1, 'month'));
+    setCurrentMonth((prev) => prev.subtract(1, 'month'));
   };
 
   const goToNextMonth = () => {
-    setCurrentMonth(prev => prev.add(1, 'month'));
+    setCurrentMonth((prev) => prev.add(1, 'month'));
   };
 
   const goToCurrentMonth = () => {
@@ -784,11 +903,11 @@ const Calendar: React.FC = React.memo(() => {
 
   // Daily navigation functions
   const goToPreviousDay = () => {
-    setCurrentDay(prev => prev.subtract(1, 'day'));
+    setCurrentDay((prev) => prev.subtract(1, 'day'));
   };
 
   const goToNextDay = () => {
-    setCurrentDay(prev => prev.add(1, 'day'));
+    setCurrentDay((prev) => prev.add(1, 'day'));
   };
 
   const goToCurrentDay = () => {
@@ -797,7 +916,15 @@ const Calendar: React.FC = React.memo(() => {
 
   const renderWeeklyView = () => {
     const events = getCalendarEvents();
-    const weekDays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const weekDays = [
+      'Sunday',
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+    ];
     const timeSlots = Array.from({ length: 24 }, (_, i) => i); // 0 AM to 11 PM (24 hours)
 
     const safeEvents = Array.isArray(events) ? events : [];
@@ -809,30 +936,49 @@ const Calendar: React.FC = React.memo(() => {
         <div className="calendar-header">
           {/* <Button icon={<CalendarOutlined />} onClick={goToCurrentWeek}>This Week</Button> */}
           <Select
-          prefix={<CalendarOutlined />}
-            className='view-select-calender'
-                  value={viewMode}
-                  onChange={(value) => setViewMode(value)}
-                  suffixIcon={<DownOutlined />}
-                >
-                  <Option value="daily">Daily</Option>
-                  <Option value="weekly">Weekly</Option>
-                  <Option value="monthly">Month</Option>
-                </Select>
+            prefix={<CalendarOutlined />}
+            className="view-select-calender"
+            value={viewMode}
+            onChange={(value) => setViewMode(value)}
+            suffixIcon={<DownOutlined />}
+          >
+            <Option value="daily">Daily</Option>
+            <Option value="weekly">Weekly</Option>
+            <Option value="monthly">Month</Option>
+          </Select>
           <div className="calendar-navigation">
-            <Button className='month-navigate-btn' icon={<LeftOutlined />} onClick={goToPreviousWeek}></Button>
-            <h2>Weekly Schedule - {weekStart.format('MMM D')} to {weekEnd.format('MMM D, YYYY')}</h2>
-            <Button className='month-navigate-btn' icon={<RightOutlined />} onClick={goToNextWeek}></Button>
+            <Button
+              className="month-navigate-btn"
+              icon={<LeftOutlined />}
+              onClick={goToPreviousWeek}
+            ></Button>
+            <h2>
+              Weekly Schedule - {weekStart.format('MMM D')} to{' '}
+              {weekEnd.format('MMM D, YYYY')}
+            </h2>
+            <Button
+              className="month-navigate-btn"
+              icon={<RightOutlined />}
+              onClick={goToNextWeek}
+            ></Button>
           </div>
-          <Button className='today-button' onClick={goToCurrentDay}>Today</Button>
+          <Button className="today-button" onClick={goToCurrentDay}>
+            Today
+          </Button>
         </div>
 
         <div className="calendar-grid">
           <div className="time-column">
             <div className="time-header"></div>
-            {timeSlots.map(hour => (
+            {timeSlots.map((hour) => (
               <div key={hour} className="time-slot">
-                {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                {hour === 0
+                  ? '12 AM'
+                  : hour === 12
+                    ? '12 PM'
+                    : hour > 12
+                      ? `${hour - 12} PM`
+                      : `${hour} AM`}
               </div>
             ))}
           </div>
@@ -840,8 +986,8 @@ const Calendar: React.FC = React.memo(() => {
           {weekDays.map((day, dayIndex) => (
             <div key={day} className="day-column">
               <div className="day-header">{day}</div>
-              {timeSlots.map(hour => {
-                const hourEvents = safeEvents.filter(event => {
+              {timeSlots.map((hour) => {
+                const hourEvents = safeEvents.filter((event) => {
                   // Get the event date
                   const eventDate = event.start;
 
@@ -850,8 +996,11 @@ const Calendar: React.FC = React.memo(() => {
                   const weekEnd = currentWeek.endOf('week');
 
                   // Check if event is in the current week
-                  const isInCurrentWeek = (eventDate.isSame(weekStart, 'day') || eventDate.isAfter(weekStart, 'day')) &&
-                    (eventDate.isSame(weekEnd, 'day') || eventDate.isBefore(weekEnd, 'day'));
+                  const isInCurrentWeek =
+                    (eventDate.isSame(weekStart, 'day') ||
+                      eventDate.isAfter(weekStart, 'day')) &&
+                    (eventDate.isSame(weekEnd, 'day') ||
+                      eventDate.isBefore(weekEnd, 'day'));
 
                   // Get the day of week for the event (0 = Sunday, 1 = Monday, etc.)
                   const eventDayOfWeek = eventDate.day();
@@ -863,7 +1012,8 @@ const Calendar: React.FC = React.memo(() => {
                   // Check if event matches the current hour
                   const matchesHour = eventDate.hour() === hour;
 
-                  const shouldShow = isInCurrentWeek && matchesDay && matchesHour;
+                  const shouldShow =
+                    isInCurrentWeek && matchesDay && matchesHour;
 
                   return shouldShow;
                 });
@@ -874,7 +1024,7 @@ const Calendar: React.FC = React.memo(() => {
                     className="time-slot"
                     style={{
                       cursor: hourEvents.length > 0 ? 'pointer' : 'default',
-                      position: 'relative'
+                      position: 'relative',
                     }}
                     onClick={() => {
                       if (hourEvents.length > 0) {
@@ -882,34 +1032,43 @@ const Calendar: React.FC = React.memo(() => {
                         setSelectedClassForDetails({
                           id: `week-${day}-${hour}`,
                           section_code: `${day} ${hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}`,
-                          course: { name: `${hourEvents.length} Event(s)`, code: '' },
+                          course: {
+                            name: `${hourEvents.length} Event(s)`,
+                            code: '',
+                          },
                           instructor: { first_name: '', last_name: '' },
                           venue: { name: 'Multiple Venues' },
                           campus: { name: 'Multiple Campuses' },
                           max_capacity: hourEvents.length,
                           day_of_week: day.toUpperCase(),
-                          start_time: hourEvents[0]?.start.format('HH:mm') || '',
-                          end_time: hourEvents[hourEvents.length - 1]?.end.format('HH:mm') || '',
-                          meeting_times: hourEvents.map(event => ({
+                          start_time:
+                            hourEvents[0]?.start.format('HH:mm') || '',
+                          end_time:
+                            hourEvents[hourEvents.length - 1]?.end.format(
+                              'HH:mm'
+                            ) || '',
+                          meeting_times: hourEvents.map((event) => ({
                             id: event.id,
-                            day_of_week: event.start.format('dddd').toUpperCase(),
+                            day_of_week: event.start
+                              .format('dddd')
+                              .toUpperCase(),
                             start_time: event.start.format('HH:mm'),
                             end_time: event.end.format('HH:mm'),
                             venue_id: event.meetingTime.venue_id,
-                            venue: event.meetingTime.venue
+                            venue: event.meetingTime.venue,
                           })),
                           // Add custom properties for week view
                           _hourEvents: hourEvents,
                           _day: day,
-                          _hour: hour
+                          _hour: hour,
                         } as any);
                         setIsClassDetailsModalVisible(true);
                       }
                     }}
                   >
                     {hourEvents.length > 0 ? (
-                      hourEvents.map(event => {
-                        console.log(event, "eventeventeventevent")
+                      hourEvents.map((event) => {
+                        console.log(event, 'eventeventeventevent');
                         const colors = getEventColors(event.section_code);
 
                         return (
@@ -939,38 +1098,52 @@ const Calendar: React.FC = React.memo(() => {
                             }}>
                               {colors.icon}
                             </span>*/}
-                            <div className="event-title" style={{
-                              fontWeight: '600',
-                              marginBottom: '8px',
-                              fontSize: '14px'
-                            }}>
+                            <div
+                              className="event-title"
+                              style={{
+                                fontWeight: '600',
+                                marginBottom: '8px',
+                                fontSize: '14px',
+                              }}
+                            >
                               {event.title}
                             </div>
-                            <div className="event-details" style={{
-                              fontSize: '12px',
-                              opacity: '0.9',
-                              marginBottom: '4px'
-                            }}>
-                              {event.class.teacher?.first_name && event.class.teacher?.last_name ?
-                                `${event.class.teacher.first_name} ${event.class.teacher.last_name}` :
-                                event.class.instructor?.first_name && event.class.instructor?.last_name ?
-                                  `${event.class.instructor.first_name} ${event.class.instructor.last_name}` :
-                                  'Unknown Teacher'
-                              }
+                            <div
+                              className="event-details"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.9',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              {event.class.teacher?.first_name &&
+                              event.class.teacher?.last_name
+                                ? `${event.class.teacher.first_name} ${event.class.teacher.last_name}`
+                                : event.class.instructor?.first_name &&
+                                    event.class.instructor?.last_name
+                                  ? `${event.class.instructor.first_name} ${event.class.instructor.last_name}`
+                                  : 'Unknown Teacher'}
                             </div>
-                            <div className="event-location" style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px'
-                            }}>
+                            <div
+                              className="event-location"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
                               {event.meetingTime.venue?.name || 'Unknown Venue'}
                             </div>
-                            <div className="event-time" style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              fontWeight: '500'
-                            }}>
-                              {event.start.format('HH:mm')} - {event.end.format('HH:mm')}
+                            <div
+                              className="event-time"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                fontWeight: '500',
+                              }}
+                            >
+                              {event.start.format('HH:mm')} -{' '}
+                              {event.end.format('HH:mm')}
                             </div>
                           </div>
                         );
@@ -984,7 +1157,7 @@ const Calendar: React.FC = React.memo(() => {
             </div>
           ))}
         </div>
-      </div >
+      </div>
     );
   };
 
@@ -997,37 +1170,46 @@ const Calendar: React.FC = React.memo(() => {
         <div className="calendar-header">
           {/* <Button icon={<CalendarOutlined />} onClick={goToCurrentMonth}  >This Month</Button> */}
           <Select
-          prefix={<CalendarOutlined />}
-            className='view-select-calender'
-                  value={viewMode}
-                  onChange={(value) => setViewMode(value)}
-                  suffixIcon={<DownOutlined />}
-                >
-                  <Option value="daily">Daily</Option>
-                  <Option value="weekly">Weekly</Option>
-                  <Option value="monthly">Month</Option>
-                </Select>
-          <div className="calendar-navigation" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <Button className='month-navigate-btn' icon={<LeftOutlined />} onClick={goToPreviousMonth}></Button>
-            <h2>
-              Monthly Schedule - {currentMonth.format('MMMM YYYY')}
-            </h2>
-            <Button className='month-navigate-btn' icon={<RightOutlined />} onClick={goToNextMonth}></Button>
+            prefix={<CalendarOutlined />}
+            className="view-select-calender"
+            value={viewMode}
+            onChange={(value) => setViewMode(value)}
+            suffixIcon={<DownOutlined />}
+          >
+            <Option value="daily">Daily</Option>
+            <Option value="weekly">Weekly</Option>
+            <Option value="monthly">Month</Option>
+          </Select>
+          <div
+            className="calendar-navigation"
+            style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
+          >
+            <Button
+              className="month-navigate-btn"
+              icon={<LeftOutlined />}
+              onClick={goToPreviousMonth}
+            ></Button>
+            <h2>Monthly Schedule - {currentMonth.format('MMMM YYYY')}</h2>
+            <Button
+              className="month-navigate-btn"
+              icon={<RightOutlined />}
+              onClick={goToNextMonth}
+            ></Button>
           </div>
-          <Button className='today-button' onClick={goToCurrentDay}>Today</Button>
-
+          <Button className="today-button" onClick={goToCurrentDay}>
+            Today
+          </Button>
         </div>
 
         <AntCalendar
           value={currentMonth}
           onChange={setCurrentMonth}
-          className='ant-calendar-monthly-main'
+          className="ant-calendar-monthly-main"
           style={{
-            border: '1px solid #e9ecef', 
+            border: '1px solid #e9ecef',
           }}
-          
           dateCellRender={(date) => {
-            const dayEvents = safeEvents.filter(event => {
+            const dayEvents = safeEvents.filter((event) => {
               const eventDate = event.start;
               const isSameDay = eventDate.isSame(date, 'day');
 
@@ -1040,7 +1222,7 @@ const Calendar: React.FC = React.memo(() => {
                 style={{
                   padding: '2px',
                   cursor: dayEvents.length > 0 ? 'pointer' : 'default',
-                  minHeight: '60px'
+                  minHeight: '60px',
                 }}
                 onClick={() => {
                   if (dayEvents.length > 0) {
@@ -1048,31 +1230,36 @@ const Calendar: React.FC = React.memo(() => {
                     setSelectedClassForDetails({
                       id: `day-${date.format('YYYY-MM-DD')}`,
                       section_code: `Day: ${date.format('DD MMM YYYY')}`,
-                      course: { name: `${dayEvents.length} Event(s)`, code: '' },
+                      course: {
+                        name: `${dayEvents.length} Event(s)`,
+                        code: '',
+                      },
                       instructor: { first_name: '', last_name: '' },
                       venue: { name: 'Multiple Venues' },
                       campus: { name: 'Multiple Campuses' },
                       max_capacity: dayEvents.length,
                       day_of_week: date.format('dddd').toUpperCase(),
                       start_time: dayEvents[0]?.start.format('HH:mm') || '',
-                      end_time: dayEvents[dayEvents.length - 1]?.end.format('HH:mm') || '',
-                      meeting_times: dayEvents.map(event => ({
+                      end_time:
+                        dayEvents[dayEvents.length - 1]?.end.format('HH:mm') ||
+                        '',
+                      meeting_times: dayEvents.map((event) => ({
                         id: event.id,
                         day_of_week: event.start.format('dddd').toUpperCase(),
                         start_time: event.start.format('HH:mm'),
                         end_time: event.end.format('HH:mm'),
                         venue_id: event.meetingTime.venue_id,
-                        venue: event.meetingTime.venue
+                        venue: event.meetingTime.venue,
                       })),
                       // Add custom properties for day view
                       _dayEvents: dayEvents,
-                      _date: date.format('YYYY-MM-DD')
+                      _date: date.format('YYYY-MM-DD'),
                     } as any);
                     setIsClassDetailsModalVisible(true);
                   }
                 }}
               >
-                {dayEvents.slice(0, 2).map(event => {
+                {dayEvents.slice(0, 2).map((event) => {
                   const colors = getEventColors(event.section_code);
 
                   return (
@@ -1096,7 +1283,7 @@ const Calendar: React.FC = React.memo(() => {
                         textOverflow: 'ellipsis',
                         whiteSpace: 'nowrap',
                         lineHeight: '1.2',
-                        position: 'relative'
+                        position: 'relative',
                       }}
                       // onMouseEnter={(e) => {
                       //   e.currentTarget.style.background = colors.hoverBackground;
@@ -1111,13 +1298,15 @@ const Calendar: React.FC = React.memo(() => {
                       title={`${event.type === 'CLASS' ? '📚 Class' : '🎉 Event'}: ${event.title}`}
                     >
                       {/* Event type indicator */}
-                      <span style={{
-                        position: 'absolute',
-                        top: '2px',
-                        right: '4px',
-                        fontSize: '8px',
-                        opacity: '0.8'
-                      }}>
+                      <span
+                        style={{
+                          position: 'absolute',
+                          top: '2px',
+                          right: '4px',
+                          fontSize: '8px',
+                          opacity: '0.8',
+                        }}
+                      >
                         {/* {colors.icon} */}
                       </span>
                       {event.title}
@@ -1125,17 +1314,19 @@ const Calendar: React.FC = React.memo(() => {
                   );
                 })}
                 {dayEvents.length > 2 && (
-                  <div style={{
-                    fontSize: '10px',
-                    color: '#666',
-                    textAlign: 'center',
-                    padding: '3px 8px',
-                    backgroundColor: '#f0f0f0',
-                    borderRadius: '4px',
-                    border: '1px dashed #d9d9d9',
-                    cursor: 'pointer',
-                    marginTop: '2px'
-                  }}>
+                  <div
+                    style={{
+                      fontSize: '10px',
+                      color: '#666',
+                      textAlign: 'center',
+                      padding: '3px 8px',
+                      backgroundColor: '#f0f0f0',
+                      borderRadius: '4px',
+                      border: '1px dashed #d9d9d9',
+                      cursor: 'pointer',
+                      marginTop: '2px',
+                    }}
+                  >
                     +{dayEvents.length - 2} more
                   </div>
                 )}
@@ -1152,52 +1343,69 @@ const Calendar: React.FC = React.memo(() => {
     const safeEvents = Array.isArray(events) ? events : [];
     const timeSlots = Array.from({ length: 24 }, (_, i) => i); // 0 AM to 11 PM (24 hours)
 
-    const dayEvents = safeEvents.filter(event => {
+    const dayEvents = safeEvents.filter((event) => {
       const eventDate = event.start;
       const isSameDay = eventDate.isSame(currentDay, 'day');
 
       return isSameDay;
     });
 
-
-
     return (
       <div className="daily-calendar">
         <div className="calendar-header">
           <Select
-          prefix={<CalendarOutlined />}
-            className='view-select-calender'
-                  value={viewMode}
-                  onChange={(value) => setViewMode(value)}
-                  suffixIcon={<DownOutlined />}
-                >
-                  <Option value="daily">Daily</Option>
-                  <Option value="weekly">Weekly</Option>
-                  <Option value="monthly">Month</Option>
-                </Select>
+            prefix={<CalendarOutlined />}
+            className="view-select-calender"
+            value={viewMode}
+            onChange={(value) => setViewMode(value)}
+            suffixIcon={<DownOutlined />}
+          >
+            <Option value="daily">Daily</Option>
+            <Option value="weekly">Weekly</Option>
+            <Option value="monthly">Month</Option>
+          </Select>
           <div className="calendar-navigation">
-            <Button className='month-navigate-btn' icon={<LeftOutlined />} onClick={goToPreviousDay}></Button>
+            <Button
+              className="month-navigate-btn"
+              icon={<LeftOutlined />}
+              onClick={goToPreviousDay}
+            ></Button>
             <h2>Daily Schedule - {currentDay.format('dddd, MMMM D, YYYY')}</h2>
-            <Button className='month-navigate-btn' icon={<RightOutlined />} onClick={goToNextDay}></Button>
+            <Button
+              className="month-navigate-btn"
+              icon={<RightOutlined />}
+              onClick={goToNextDay}
+            ></Button>
           </div>
-                    <Button className='today-button' icon={<CalendarOutlined />} onClick={goToCurrentDay}>Today</Button>
-
+          <Button
+            className="today-button"
+            icon={<CalendarOutlined />}
+            onClick={goToCurrentDay}
+          >
+            Today
+          </Button>
         </div>
 
         <div className="daily-time-grid">
           <div className="time-column">
             <div className="time-header"></div>
-            {timeSlots.map(hour => (
+            {timeSlots.map((hour) => (
               <div key={hour} className="time-slot">
-                {hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}
+                {hour === 0
+                  ? '12 AM'
+                  : hour === 12
+                    ? '12 PM'
+                    : hour > 12
+                      ? `${hour - 12} PM`
+                      : `${hour} AM`}
               </div>
             ))}
           </div>
 
           <div className="events-column">
             <div className="day-header">Monday</div>
-            {timeSlots.map(hour => {
-              const hourEvents = dayEvents.filter(event => {
+            {timeSlots.map((hour) => {
+              const hourEvents = dayEvents.filter((event) => {
                 const eventHour = event.start.hour();
                 const matchesHour = eventHour === hour;
 
@@ -1210,7 +1418,7 @@ const Calendar: React.FC = React.memo(() => {
                   className="time-slot daytimeing-list"
                   style={{
                     cursor: hourEvents.length > 0 ? 'pointer' : 'default',
-                    position: 'relative'
+                    position: 'relative',
                   }}
                   onClick={() => {
                     if (hourEvents.length > 0) {
@@ -1218,33 +1426,39 @@ const Calendar: React.FC = React.memo(() => {
                       setSelectedClassForDetails({
                         id: `daily-${currentDay.format('YYYY-MM-DD')}-${hour}`,
                         section_code: `${currentDay.format('dddd')} ${hour === 0 ? '12 AM' : hour === 12 ? '12 PM' : hour > 12 ? `${hour - 12} PM` : `${hour} AM`}`,
-                        course: { name: `${hourEvents.length} Event(s)`, code: '' },
+                        course: {
+                          name: `${hourEvents.length} Event(s)`,
+                          code: '',
+                        },
                         instructor: { first_name: '', last_name: '' },
                         venue: { name: 'Multiple Venues' },
                         campus: { name: 'Multiple Campuses' },
                         max_capacity: hourEvents.length,
                         day_of_week: currentDay.format('dddd').toUpperCase(),
                         start_time: hourEvents[0]?.start.format('HH:mm') || '',
-                        end_time: hourEvents[hourEvents.length - 1]?.end.format('HH:mm') || '',
-                        meeting_times: hourEvents.map(event => ({
+                        end_time:
+                          hourEvents[hourEvents.length - 1]?.end.format(
+                            'HH:mm'
+                          ) || '',
+                        meeting_times: hourEvents.map((event) => ({
                           id: event.id,
                           day_of_week: event.start.format('dddd').toUpperCase(),
                           start_time: event.start.format('HH:mm'),
                           end_time: event.end.format('HH:mm'),
                           venue_id: event.meetingTime.venue_id,
-                          venue: event.meetingTime.venue
+                          venue: event.meetingTime.venue,
                         })),
                         // Add custom properties for daily view
                         _hourEvents: hourEvents,
                         _date: currentDay.format('YYYY-MM-DD'),
-                        _hour: hour
+                        _hour: hour,
                       } as any);
                       setIsClassDetailsModalVisible(true);
                     }
                   }}
                 >
                   {hourEvents.length > 0 ? (
-                    hourEvents.map(event => {
+                    hourEvents.map((event) => {
                       const colors = getEventColors(event.section_code);
 
                       return (
@@ -1261,7 +1475,7 @@ const Calendar: React.FC = React.memo(() => {
                             textAlign: 'left',
                             borderLeft: colors.border,
                             position: 'relative',
-                            transition: 'all 0.3s ease'
+                            transition: 'all 0.3s ease',
                           }}
                         >
                           {/* Event type indicator */}
@@ -1275,45 +1489,68 @@ const Calendar: React.FC = React.memo(() => {
                             {colors.icon}
                           </span>*/}
 
-                          <div className="event-title" style={{
-                            fontWeight: '600',
-                            marginBottom: '8px',
-                            fontSize: '14px'
-                          }}>
+                          <div
+                            className="event-title"
+                            style={{
+                              fontWeight: '600',
+                              marginBottom: '8px',
+                              fontSize: '14px',
+                            }}
+                          >
                             {event.title}
                           </div>
                           <div className="event-details">
-                            <div className="event-time" style={{
-                              fontSize: '12px',
-                              opacity: '0.9',
-                              marginBottom: '4px'
-                            }}>
-                              <ClockCircleOutlined /> {event.start.format('HH:mm')} - {event.end.format('HH:mm')}
+                            <div
+                              className="event-time"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.9',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <ClockCircleOutlined />{' '}
+                              {event.start.format('HH:mm')} -{' '}
+                              {event.end.format('HH:mm')}
                             </div>
-                            <div className="event-teacher" style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px'
-                            }}>
-                              <UserOutlined /> {event.class.teacher?.first_name && event.class.teacher?.last_name ?
-                                `${event.class.teacher.first_name} ${event.class.teacher.last_name}` :
-                                event.class.instructor?.first_name && event.class.instructor?.last_name ?
-                                  `${event.class.instructor.first_name} ${event.class.instructor.last_name}` :
-                                  'Unknown Teacher'
-                              }
+                            <div
+                              className="event-teacher"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <UserOutlined />{' '}
+                              {event.class.teacher?.first_name &&
+                              event.class.teacher?.last_name
+                                ? `${event.class.teacher.first_name} ${event.class.teacher.last_name}`
+                                : event.class.instructor?.first_name &&
+                                    event.class.instructor?.last_name
+                                  ? `${event.class.instructor.first_name} ${event.class.instructor.last_name}`
+                                  : 'Unknown Teacher'}
                             </div>
-                            <div className="event-venue" style={{
-                              fontSize: '12px',
-                              opacity: '0.8'
-                            }}>
-                              <EnvironmentOutlined /> {event.meetingTime.venue?.name || 'Unknown Venue'}
+                            <div
+                              className="event-venue"
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                              }}
+                            >
+                              <EnvironmentOutlined />{' '}
+                              {event.meetingTime.venue?.name || 'Unknown Venue'}
                             </div>
                           </div>
                         </div>
                       );
                     })
                   ) : (
-                    <div style={{ color: '#ccc', fontSize: '12px', textAlign: 'center' }}></div>
+                    <div
+                      style={{
+                        color: '#ccc',
+                        fontSize: '12px',
+                        textAlign: 'center',
+                      }}
+                    ></div>
                   )}
                 </div>
               );
@@ -1321,17 +1558,24 @@ const Calendar: React.FC = React.memo(() => {
           </div>
         </div>
 
-        {
-          dayEvents.length === 0 && (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666', marginTop: '20px' }}>
-              <p>No classes scheduled for {currentDay.format('dddd, MMMM D, YYYY')}</p>
-              <p style={{ fontSize: '14px', marginTop: '10px' }}>
-                Available events: {safeEvents.length} total
-              </p>
-            </div>
-          )
-        }
-      </div >
+        {dayEvents.length === 0 && (
+          <div
+            style={{
+              textAlign: 'center',
+              padding: '40px',
+              color: '#666',
+              marginTop: '20px',
+            }}
+          >
+            <p>
+              No classes scheduled for {currentDay.format('dddd, MMMM D, YYYY')}
+            </p>
+            <p style={{ fontSize: '14px', marginTop: '10px' }}>
+              Available events: {safeEvents.length} total
+            </p>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -1360,18 +1604,19 @@ const Calendar: React.FC = React.memo(() => {
         status: undefined,
         day_of_week: undefined,
         available_seats: undefined,
-        department_id: undefined
+        department_id: undefined,
       });
 
       if (response?.data) {
         setClasses(response.data);
-        message.success(`Found ${response.data.length} classes matching your filters`);
+        message.success(
+          `Found ${response.data.length} classes matching your filters`
+        );
         console.log('Filtered classes loaded:', response.data.length);
       } else {
         setClasses([]);
         message.info('No classes found matching your filters');
       }
-
     } catch (error) {
       console.error('Error applying filters:', error);
       message.error('Failed to apply filters. Please try again.');
@@ -1421,19 +1666,25 @@ const Calendar: React.FC = React.memo(() => {
       class_time: null,
       is_recurring: false,
       recurrence_pattern: '',
-      recurrence_end_date: null
+      recurrence_end_date: null,
     };
-    setClassForms(prev => [...prev, newForm]);
+    setClassForms((prev) => [...prev, newForm]);
   };
 
   const removeClassForm = (formId: string) => {
-    setClassForms(prev => prev.filter(form => form.id !== formId));
+    setClassForms((prev) => prev.filter((form) => form.id !== formId));
   };
 
-  const updateClassForm = (formId: string, field: keyof ClassFormData, value: any) => {
-    setClassForms(prev => prev.map(form =>
-      form.id === formId ? { ...form, [field]: value } : form
-    ));
+  const updateClassForm = (
+    formId: string,
+    field: keyof ClassFormData,
+    value: any
+  ) => {
+    setClassForms((prev) =>
+      prev.map((form) =>
+        form.id === formId ? { ...form, [field]: value } : form
+      )
+    );
   };
 
   const handleCreateMultipleClasses = async () => {
@@ -1444,9 +1695,16 @@ const Calendar: React.FC = React.memo(() => {
     }
 
     // Validate that at least one class form has data
-    const validForms = classForms.filter(form => {
-      const hasBasicFields = form.section_code && form.course_id && form.instructor_id &&
-        form.venue_id && form.campus_id && form.capacity && form.class_date && form.class_time;
+    const validForms = classForms.filter((form) => {
+      const hasBasicFields =
+        form.section_code &&
+        form.course_id &&
+        form.instructor_id &&
+        form.venue_id &&
+        form.campus_id &&
+        form.capacity &&
+        form.class_date &&
+        form.class_time;
 
       // If recurring, also validate recurrence pattern
       if (form.is_recurring) {
@@ -1468,21 +1726,40 @@ const Calendar: React.FC = React.memo(() => {
 
       const allClassesData: ClassInstanceData[] = [];
 
-      validForms.forEach(form => {
+      validForms.forEach((form) => {
         if (form.is_recurring && form.recurrence_pattern && form.class_date) {
           // Generate all recurring instances
           const endDate = form.recurrence_end_date || dayjs().add(6, 'months');
-          const instances = generateRecurringInstances(form, form.class_date, endDate);
+          const instances = generateRecurringInstances(
+            form,
+            form.class_date,
+            endDate
+          );
           // Add is_recurring flag to all instances
-          instances.forEach(instance => {
+          instances.forEach((instance) => {
             instance.is_recurring = true;
           });
           allClassesData.push(...instances);
         } else {
           // Single class - create one instance
           const [startTime, endTime] = form.class_time!;
-          const dayNames = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
-          const dayString = dayNames[form.class_date!.day()] as 'SUNDAY' | 'MONDAY' | 'TUESDAY' | 'WEDNESDAY' | 'THURSDAY' | 'FRIDAY' | 'SATURDAY';
+          const dayNames = [
+            'SUNDAY',
+            'MONDAY',
+            'TUESDAY',
+            'WEDNESDAY',
+            'THURSDAY',
+            'FRIDAY',
+            'SATURDAY',
+          ];
+          const dayString = dayNames[form.class_date!.day()] as
+            | 'SUNDAY'
+            | 'MONDAY'
+            | 'TUESDAY'
+            | 'WEDNESDAY'
+            | 'THURSDAY'
+            | 'FRIDAY'
+            | 'SATURDAY';
 
           allClassesData.push({
             course_id: form.course_id,
@@ -1499,7 +1776,7 @@ const Calendar: React.FC = React.memo(() => {
             venue_id: form.venue_id,
             campus_id: form.campus_id,
             meeting_date: form.class_date!.format('YYYY-MM-DD'),
-            is_recurring: false
+            is_recurring: false,
           });
         }
       });
@@ -1510,8 +1787,8 @@ const Calendar: React.FC = React.memo(() => {
         global_settings: {
           program_id: selectedProgram,
           year_id: selectedYear,
-          semester_id: selectedSemester
-        }
+          semester_id: selectedSemester,
+        },
       };
 
       console.log('Sending bulk classes data to API:', requestPayload);
@@ -1520,22 +1797,29 @@ const Calendar: React.FC = React.memo(() => {
       message.info(`📋 Creating ${allClassesData.length} class(es)`);
 
       // Single API call with all classes data
-      const response = await fetch('http://103.189.173.7:8080/api/v1/admin/academics/classes/bulk-create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(requestPayload)
-      });
+      const response = await fetch(
+        'http://103.189.173.7:8080/api/v1/admin/academics/classes/bulk-create',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(requestPayload),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
         console.log('All classes created successfully:', result);
 
         // Show success summary
-        const recurringCount = allClassesData.filter(c => c.is_recurring).length;
-        const oneTimeCount = allClassesData.filter(c => !c.is_recurring).length;
+        const recurringCount = allClassesData.filter(
+          (c) => c.is_recurring
+        ).length;
+        const oneTimeCount = allClassesData.filter(
+          (c) => !c.is_recurring
+        ).length;
 
         let summaryMessage = `✅ Successfully created ${allClassesData.length} class(es)!`;
         if (recurringCount > 0) {
@@ -1552,12 +1836,18 @@ const Calendar: React.FC = React.memo(() => {
           result.data.classes_created.forEach((classResult: any) => {
             if (classResult.success) {
               if (classResult.is_recurring) {
-                message.success(`✅ ${classResult.section_code}: ${classResult.instances_created} instances created with ${classResult.recurrence_pattern} pattern`);
+                message.success(
+                  `✅ ${classResult.section_code}: ${classResult.instances_created} instances created with ${classResult.recurrence_pattern} pattern`
+                );
               } else {
-                message.success(`✅ ${classResult.section_code}: Class created successfully`);
+                message.success(
+                  `✅ ${classResult.section_code}: Class created successfully`
+                );
               }
             } else {
-              message.error(`❌ ${classResult.section_code}: ${classResult.error}`);
+              message.error(
+                `❌ ${classResult.section_code}: ${classResult.error}`
+              );
             }
           });
         }
@@ -1574,12 +1864,15 @@ const Calendar: React.FC = React.memo(() => {
       } else {
         const errorData = await response.json();
         console.error('Failed to create classes:', errorData);
-        message.error(`❌ Failed to create classes: ${errorData.error || 'Unknown error'}`);
+        message.error(
+          `❌ Failed to create classes: ${errorData.error || 'Unknown error'}`
+        );
       }
-
     } catch (error: any) {
       console.error('Error creating multiple classes:', error);
-      message.error(`❌ Error creating classes: ${error.message || 'Unknown error'}`);
+      message.error(
+        `❌ Error creating classes: ${error.message || 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -1594,7 +1887,11 @@ const Calendar: React.FC = React.memo(() => {
   };
 
   // Function to generate recurring instances based on pattern
-  const generateRecurringInstances = (form: ClassFormData, startDate: Dayjs, endDate: Dayjs): ClassInstanceData[] => {
+  const generateRecurringInstances = (
+    form: ClassFormData,
+    startDate: Dayjs,
+    endDate: Dayjs
+  ): ClassInstanceData[] => {
     const instances: ClassInstanceData[] = [];
     let currentDate = startDate.clone();
 
@@ -1604,7 +1901,10 @@ const Calendar: React.FC = React.memo(() => {
 
     switch (form.recurrence_pattern) {
       case 'WEEKLY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           instances.push({
             course_id: form.course_id,
             year_id: selectedYear,
@@ -1614,20 +1914,31 @@ const Calendar: React.FC = React.memo(() => {
             max_capacity: parseInt(form.capacity),
             delivery_mode: 'IN_PERSON',
             status: 'PLANNED',
-            day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][dayOfWeek],
+            day_of_week: [
+              'SUNDAY',
+              'MONDAY',
+              'TUESDAY',
+              'WEDNESDAY',
+              'THURSDAY',
+              'FRIDAY',
+              'SATURDAY',
+            ][dayOfWeek],
             start_time: startTime.format('HH:mm'),
             end_time: endTime.format('HH:mm'),
             venue_id: form.venue_id,
             campus_id: form.campus_id,
             meeting_date: currentDate.format('YYYY-MM-DD'),
-            is_recurring: true
+            is_recurring: true,
           });
           currentDate = currentDate.add(1, 'week');
         }
         break;
 
       case 'BIWEEKLY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           instances.push({
             course_id: form.course_id,
             year_id: selectedYear,
@@ -1637,20 +1948,31 @@ const Calendar: React.FC = React.memo(() => {
             max_capacity: parseInt(form.capacity),
             delivery_mode: 'IN_PERSON',
             status: 'PLANNED',
-            day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][dayOfWeek],
+            day_of_week: [
+              'SUNDAY',
+              'MONDAY',
+              'TUESDAY',
+              'WEDNESDAY',
+              'THURSDAY',
+              'FRIDAY',
+              'SATURDAY',
+            ][dayOfWeek],
             start_time: startTime.format('HH:mm'),
             end_time: endTime.format('HH:mm'),
             venue_id: form.venue_id,
             campus_id: form.campus_id,
             meeting_date: currentDate.format('YYYY-MM-DD'),
-            is_recurring: true
+            is_recurring: true,
           });
           currentDate = currentDate.add(2, 'week');
         }
         break;
 
       case 'MONTHLY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           instances.push({
             course_id: form.course_id,
             year_id: selectedYear,
@@ -1660,22 +1982,34 @@ const Calendar: React.FC = React.memo(() => {
             max_capacity: parseInt(form.capacity),
             delivery_mode: 'IN_PERSON',
             status: 'PLANNED',
-            day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][dayOfWeek],
+            day_of_week: [
+              'SUNDAY',
+              'MONDAY',
+              'TUESDAY',
+              'WEDNESDAY',
+              'THURSDAY',
+              'FRIDAY',
+              'SATURDAY',
+            ][dayOfWeek],
             start_time: startTime.format('HH:mm'),
             end_time: endTime.format('HH:mm'),
             venue_id: form.venue_id,
             campus_id: form.campus_id,
             meeting_date: currentDate.format('YYYY-MM-DD'),
-            is_recurring: true
+            is_recurring: true,
           });
           currentDate = currentDate.add(1, 'month');
         }
         break;
 
       case 'WEEKDAYS':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           const currentDay = currentDate.day();
-          if (currentDay >= 1 && currentDay <= 5) { // Monday to Friday
+          if (currentDay >= 1 && currentDay <= 5) {
+            // Monday to Friday
             instances.push({
               course_id: form.course_id,
               year_id: selectedYear,
@@ -1685,13 +2019,21 @@ const Calendar: React.FC = React.memo(() => {
               max_capacity: parseInt(form.capacity),
               delivery_mode: 'IN_PERSON',
               status: 'PLANNED',
-              day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][currentDay],
+              day_of_week: [
+                'SUNDAY',
+                'MONDAY',
+                'TUESDAY',
+                'WEDNESDAY',
+                'THURSDAY',
+                'FRIDAY',
+                'SATURDAY',
+              ][currentDay],
               start_time: startTime.format('HH:mm'),
               end_time: endTime.format('HH:mm'),
               venue_id: form.venue_id,
               campus_id: form.campus_id,
               meeting_date: currentDate.format('YYYY-MM-DD'),
-              is_recurring: true
+              is_recurring: true,
             });
           }
           currentDate = currentDate.add(1, 'day');
@@ -1699,9 +2041,13 @@ const Calendar: React.FC = React.memo(() => {
         break;
 
       case 'MONDAY_WEDNESDAY_FRIDAY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           const currentDay = currentDate.day();
-          if (currentDay === 1 || currentDay === 3 || currentDay === 5) { // Monday, Wednesday, Friday
+          if (currentDay === 1 || currentDay === 3 || currentDay === 5) {
+            // Monday, Wednesday, Friday
             instances.push({
               course_id: form.course_id,
               year_id: selectedYear,
@@ -1711,13 +2057,21 @@ const Calendar: React.FC = React.memo(() => {
               max_capacity: parseInt(form.capacity),
               delivery_mode: 'IN_PERSON',
               status: 'PLANNED',
-              day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][currentDay],
+              day_of_week: [
+                'SUNDAY',
+                'MONDAY',
+                'TUESDAY',
+                'WEDNESDAY',
+                'THURSDAY',
+                'FRIDAY',
+                'SATURDAY',
+              ][currentDay],
               start_time: startTime.format('HH:mm'),
               end_time: endTime.format('HH:mm'),
               venue_id: form.venue_id,
               campus_id: form.campus_id,
               meeting_date: currentDate.format('YYYY-MM-DD'),
-              is_recurring: true
+              is_recurring: true,
             });
           }
           currentDate = currentDate.add(1, 'day');
@@ -1725,9 +2079,13 @@ const Calendar: React.FC = React.memo(() => {
         break;
 
       case 'TUESDAY_THURSDAY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           const currentDay = currentDate.day();
-          if (currentDay === 2 || currentDay === 4) { // Tuesday, Thursday
+          if (currentDay === 2 || currentDay === 4) {
+            // Tuesday, Thursday
             instances.push({
               course_id: form.course_id,
               year_id: selectedYear,
@@ -1737,13 +2095,21 @@ const Calendar: React.FC = React.memo(() => {
               max_capacity: parseInt(form.capacity),
               delivery_mode: 'IN_PERSON',
               status: 'PLANNED',
-              day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][currentDay],
+              day_of_week: [
+                'SUNDAY',
+                'MONDAY',
+                'TUESDAY',
+                'WEDNESDAY',
+                'THURSDAY',
+                'FRIDAY',
+                'SATURDAY',
+              ][currentDay],
               start_time: startTime.format('HH:mm'),
               end_time: endTime.format('HH:mm'),
               venue_id: form.venue_id,
               campus_id: form.campus_id,
               meeting_date: currentDate.format('YYYY-MM-DD'),
-              is_recurring: true
+              is_recurring: true,
             });
           }
           currentDate = currentDate.add(1, 'day');
@@ -1751,7 +2117,10 @@ const Calendar: React.FC = React.memo(() => {
         break;
 
       case 'DAILY':
-        while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, 'day')) {
+        while (
+          currentDate.isBefore(endDate) ||
+          currentDate.isSame(endDate, 'day')
+        ) {
           instances.push({
             course_id: form.course_id,
             year_id: selectedYear,
@@ -1761,13 +2130,21 @@ const Calendar: React.FC = React.memo(() => {
             max_capacity: parseInt(form.capacity),
             delivery_mode: 'IN_PERSON',
             status: 'PLANNED',
-            day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][currentDate.day()],
+            day_of_week: [
+              'SUNDAY',
+              'MONDAY',
+              'TUESDAY',
+              'WEDNESDAY',
+              'THURSDAY',
+              'FRIDAY',
+              'SATURDAY',
+            ][currentDate.day()],
             start_time: startTime.format('HH:mm'),
             end_time: endTime.format('HH:mm'),
             venue_id: form.venue_id,
             campus_id: form.campus_id,
             meeting_date: currentDate.format('YYYY-MM-DD'),
-            is_recurring: true
+            is_recurring: true,
           });
           currentDate = currentDate.add(1, 'day');
         }
@@ -1784,13 +2161,21 @@ const Calendar: React.FC = React.memo(() => {
           max_capacity: parseInt(form.capacity),
           delivery_mode: 'IN_PERSON',
           status: 'PLANNED',
-          day_of_week: ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'][dayOfWeek],
+          day_of_week: [
+            'SUNDAY',
+            'MONDAY',
+            'TUESDAY',
+            'WEDNESDAY',
+            'THURSDAY',
+            'FRIDAY',
+            'SATURDAY',
+          ][dayOfWeek],
           start_time: startTime.format('HH:mm'),
           end_time: endTime.format('HH:mm'),
           venue_id: form.venue_id,
           campus_id: form.campus_id,
           meeting_date: startDate.format('YYYY-MM-DD'),
-          is_recurring: true
+          is_recurring: true,
         });
     }
 
@@ -1848,21 +2233,27 @@ const Calendar: React.FC = React.memo(() => {
       course_id: '',
       year_id: '',
       semester_id: '',
-      type: 'EVENT'
+      type: 'EVENT',
     };
     setEventForms([...eventForms, newEventForm]);
   };
 
   // Function to remove event form
   const removeEventForm = (formId: string) => {
-    setEventForms(eventForms.filter(form => form.id !== formId));
+    setEventForms(eventForms.filter((form) => form.id !== formId));
   };
 
   // Function to update event form
-  const updateEventForm = (formId: string, field: keyof EventFormData, value: any) => {
-    setEventForms(eventForms.map(form =>
-      form.id === formId ? { ...form, [field]: value } : form
-    ));
+  const updateEventForm = (
+    formId: string,
+    field: keyof EventFormData,
+    value: any
+  ) => {
+    setEventForms(
+      eventForms.map((form) =>
+        form.id === formId ? { ...form, [field]: value } : form
+      )
+    );
   };
 
   // Function to handle event creation
@@ -1871,18 +2262,20 @@ const Calendar: React.FC = React.memo(() => {
       setLoading(true);
 
       // Validate event forms
-      const validEventForms = eventForms.filter(form => {
+      const validEventForms = eventForms.filter((form) => {
         const hasBasicFields = form.event_name && form.date && form.time;
         return hasBasicFields;
       });
 
       if (validEventForms.length === 0) {
-        message.error('Please fill in at least one event with required fields (Event Name, Date, Time)');
+        message.error(
+          'Please fill in at least one event with required fields (Event Name, Date, Time)'
+        );
         return;
       }
 
       // Prepare array of all event data
-      const eventsData = validEventForms.map(form => {
+      const eventsData = validEventForms.map((form) => {
         const [startTime, endTime] = form.time!;
 
         return {
@@ -1898,14 +2291,14 @@ const Calendar: React.FC = React.memo(() => {
           course_id: form.course_id || null,
           year_id: form.year_id || null,
           semester_id: form.semester_id || null,
-          type: 'EVENT'
+          type: 'EVENT',
         };
       });
 
       // Prepare the complete request payload
       const requestPayload = {
         events: eventsData,
-        type: 'EVENT'
+        type: 'EVENT',
       };
 
       console.log('Sending events data to API:', requestPayload);
@@ -1914,20 +2307,25 @@ const Calendar: React.FC = React.memo(() => {
       message.info(`📋 Creating ${eventsData.length} event(s)`);
 
       // API call for events (you can use the same endpoint or create a new one)
-      const response = await fetch('http://103.189.173.7:8080/api/v1/admin/academics/events/bulk-create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        },
-        body: JSON.stringify(requestPayload)
-      });
+      const response = await fetch(
+        'http://103.189.173.7:8080/api/v1/admin/academics/events/bulk-create',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
+          body: JSON.stringify(requestPayload),
+        }
+      );
 
       if (response.ok) {
         const result = await response.json();
         console.log('All events created successfully:', result);
 
-        message.success(`✅ Successfully created ${eventsData.length} event(s)!`);
+        message.success(
+          `✅ Successfully created ${eventsData.length} event(s)!`
+        );
 
         // Reset forms and close modal
         setEventForms([]);
@@ -1940,11 +2338,15 @@ const Calendar: React.FC = React.memo(() => {
         }, 300);
       } else {
         const errorData = await response.json();
-        message.error(`Failed to create events: ${errorData.message || 'Unknown error'}`);
+        message.error(
+          `Failed to create events: ${errorData.message || 'Unknown error'}`
+        );
       }
     } catch (error: any) {
       console.error('Error creating events:', error);
-      message.error(`Error creating events: ${error.message || 'Unknown error'}`);
+      message.error(
+        `Error creating events: ${error.message || 'Unknown error'}`
+      );
     } finally {
       setLoading(false);
     }
@@ -1961,8 +2363,23 @@ const Calendar: React.FC = React.memo(() => {
     <div>
       {/* Status Message */}
       {loading && (
-        <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff', borderRadius: '8px' }}>
-          <div style={{ color: '#1890ff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            marginBottom: '24px',
+            padding: '16px',
+            backgroundColor: '#e6f7ff',
+            border: '1px solid #91d5ff',
+            borderRadius: '8px',
+          }}
+        >
+          <div
+            style={{
+              color: '#1890ff',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
             <div className="loading-spinner"></div>
             Creating multiple classes...
           </div>
@@ -1970,14 +2387,33 @@ const Calendar: React.FC = React.memo(() => {
       )}
 
       {/* Global Settings Section */}
-      <div className="form-section" style={{ marginBottom: '24px', padding: '20px', backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
-        <h3 className="section-title" style={{ marginBottom: '16px', color: '#1890ff' }}>🌍 Global Settings (Applied to All Classes)</h3>
+      <div
+        className="form-section"
+        style={{
+          marginBottom: '24px',
+          padding: '20px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+        }}
+      >
+        <h3
+          className="section-title"
+          style={{ marginBottom: '16px', color: '#1890ff' }}
+        >
+          🌍 Global Settings (Applied to All Classes)
+        </h3>
 
         <Row gutter={16}>
           {/* Program */}
           <Col span={8}>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+              <label
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: '8px',
+                  display: 'block',
+                }}
+              >
                 Program <span style={{ color: 'red' }}>*</span>
               </label>
               <Select
@@ -1988,7 +2424,7 @@ const Calendar: React.FC = React.memo(() => {
                 showSearch
                 optionFilterProp="children"
               >
-                {(programs || []).map(program => (
+                {(programs || []).map((program) => (
                   <Option key={program.id} value={program.id}>
                     {program.name}
                   </Option>
@@ -2000,7 +2436,13 @@ const Calendar: React.FC = React.memo(() => {
           {/* Year */}
           <Col span={8}>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+              <label
+                style={{
+                  fontWeight: 'bold',
+                  marginBottom: '8px',
+                  display: 'block',
+                }}
+              >
                 Year <span style={{ color: 'red' }}>*</span>
               </label>
               <Select
@@ -2011,7 +2453,7 @@ const Calendar: React.FC = React.memo(() => {
                 showSearch
                 optionFilterProp="children"
               >
-                {(years || []).map(year => (
+                {(years || []).map((year) => (
                   <Option key={year.id} value={year.id}>
                     {year.name}
                   </Option>
@@ -2023,7 +2465,13 @@ const Calendar: React.FC = React.memo(() => {
           {/* Semester */}
           <Col span={8}>
             <div style={{ marginBottom: '16px' }}>
-              <label style={{ marginBottom: '8px', display: 'block', fontWeight: 'bold' }}>
+              <label
+                style={{
+                  marginBottom: '8px',
+                  display: 'block',
+                  fontWeight: 'bold',
+                }}
+              >
                 Semester <span style={{ color: 'red' }}>*</span>
               </label>
               <Select
@@ -2035,7 +2483,7 @@ const Calendar: React.FC = React.memo(() => {
                 showSearch
                 optionFilterProp="children"
               >
-                {(semesters || []).map(semester => (
+                {(semesters || []).map((semester) => (
                   <Option key={semester.id} value={semester.id}>
                     {semester.name}
                   </Option>
@@ -2056,10 +2504,19 @@ const Calendar: React.FC = React.memo(() => {
           </Button>
         </div>
 
-        <div style={{ marginTop: '12px', padding: '12px', backgroundColor: '#fff7e6', borderRadius: '6px', border: '1px solid #ffd591' }}>
+        <div
+          style={{
+            marginTop: '12px',
+            padding: '12px',
+            backgroundColor: '#fff7e6',
+            borderRadius: '6px',
+            border: '1px solid #ffd591',
+          }}
+        >
           <p style={{ margin: 0, fontSize: '12px', color: '#d46b08' }}>
-            💡 <strong>Helpful Note:</strong> Program, Year, and Semester are global settings that apply to all classes.
-            Individual class details (Course, Campus, Venue, Teacher, etc.) are set per class below.
+            💡 <strong>Helpful Note:</strong> Program, Year, and Semester are
+            global settings that apply to all classes. Individual class details
+            (Course, Campus, Venue, Teacher, etc.) are set per class below.
           </p>
         </div>
       </div>
@@ -2067,25 +2524,34 @@ const Calendar: React.FC = React.memo(() => {
       {/* Individual Class Forms */}
       <div className="class-forms">
         {classForms.map((form, index) => (
-          <div key={form.id} className="class-form" style={{
-            marginBottom: '24px',
-            padding: '20px',
-            border: '1px solid #d9d9d9',
-            borderRadius: '8px',
-            backgroundColor: 'white'
-          }}>
-            <div className="form-header" style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px',
-              paddingBottom: '12px',
-              borderBottom: '1px solid #f0f0f0'
-            }}>
+          <div
+            key={form.id}
+            className="class-form"
+            style={{
+              marginBottom: '24px',
+              padding: '20px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              backgroundColor: 'white',
+            }}
+          >
+            <div
+              className="form-header"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+                paddingBottom: '12px',
+                borderBottom: '1px solid #f0f0f0',
+              }}
+            >
               <h4 style={{ margin: 0, color: '#1890ff' }}>
                 Class #{index + 1}
                 {form.is_recurring && (
-                  <Tag color="blue" style={{ marginLeft: '8px' }}>🔄 Recurring</Tag>
+                  <Tag color="blue" style={{ marginLeft: '8px' }}>
+                    🔄 Recurring
+                  </Tag>
                 )}
               </h4>
               <Button
@@ -2102,32 +2568,48 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Class Code <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Input
                     placeholder="e.g., 01, 02, A, B"
                     value={form.section_code}
-                    onChange={(e) => updateClassForm(form.id, 'section_code', e.target.value)}
+                    onChange={(e) =>
+                      updateClassForm(form.id, 'section_code', e.target.value)
+                    }
                   />
                 </div>
               </Col>
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Course <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Select
                     placeholder="Select Course"
                     style={{ width: '100%' }}
                     value={form.course_id}
-                    onChange={(value) => updateClassForm(form.id, 'course_id', value)}
+                    onChange={(value) =>
+                      updateClassForm(form.id, 'course_id', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                     disabled={!selectedProgram}
                   >
-                    {(courses || []).map(course => (
+                    {(courses || []).map((course) => (
                       <Option key={course.id} value={course.id}>
                         {course.course_code} - {course.name}
                       </Option>
@@ -2138,18 +2620,26 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Teacher <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Select
                     placeholder="Select Teacher"
                     style={{ width: '100%' }}
                     value={form.instructor_id}
-                    onChange={(value) => updateClassForm(form.id, 'instructor_id', value)}
+                    onChange={(value) =>
+                      updateClassForm(form.id, 'instructor_id', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                   >
-                    {(teachers || []).map(teacher => (
+                    {(teachers || []).map((teacher) => (
                       <Option key={teacher.id} value={teacher.id}>
                         {teacher.first_name} {teacher.last_name}
                       </Option>
@@ -2160,14 +2650,22 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Capacity <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Input
                     type="number"
                     placeholder="e.g., 30"
                     value={form.capacity}
-                    onChange={(e) => updateClassForm(form.id, 'capacity', e.target.value)}
+                    onChange={(e) =>
+                      updateClassForm(form.id, 'capacity', e.target.value)
+                    }
                   />
                 </div>
               </Col>
@@ -2176,7 +2674,13 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Campus <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Select
@@ -2194,7 +2698,7 @@ const Calendar: React.FC = React.memo(() => {
                     showSearch
                     optionFilterProp="children"
                   >
-                    {(campuses || []).map(campus => (
+                    {(campuses || []).map((campus) => (
                       <Option key={campus.id} value={campus.id}>
                         {campus.name}
                       </Option>
@@ -2205,19 +2709,27 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Venue <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Select
                     placeholder="Select Venue"
                     style={{ width: '100%' }}
                     value={form.venue_id}
-                    onChange={(value) => updateClassForm(form.id, 'venue_id', value)}
+                    onChange={(value) =>
+                      updateClassForm(form.id, 'venue_id', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                     disabled={!form.campus_id}
                   >
-                    {(venues || []).map(venue => (
+                    {(venues || []).map((venue) => (
                       <Option key={venue.id} value={venue.id}>
                         {venue.name}
                       </Option>
@@ -2228,13 +2740,21 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Date <span style={{ color: 'red' }}>*</span>
                   </label>
                   <DatePicker
                     style={{ width: '100%' }}
                     value={form.class_date}
-                    onChange={(date) => updateClassForm(form.id, 'class_date', date)}
+                    onChange={(date) =>
+                      updateClassForm(form.id, 'class_date', date)
+                    }
                     placeholder="Select Date"
                   />
                 </div>
@@ -2242,13 +2762,21 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={6}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Time <span style={{ color: 'red' }}>*</span>
                   </label>
                   <TimePicker.RangePicker
                     style={{ width: '100%' }}
                     value={form.class_time}
-                    onChange={(time) => updateClassForm(form.id, 'class_time', time)}
+                    onChange={(time) =>
+                      updateClassForm(form.id, 'class_time', time)
+                    }
                     placeholder={['Start Time', 'End Time']}
                     format="HH:mm"
                   />
@@ -2257,11 +2785,21 @@ const Calendar: React.FC = React.memo(() => {
             </Row>
 
             {/* Recurring Options */}
-            <div style={{ marginTop: '16px', padding: '16px', backgroundColor: '#f6ffed', borderRadius: '6px', border: '1px solid #b7eb8f' }}>
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '16px',
+                backgroundColor: '#f6ffed',
+                borderRadius: '6px',
+                border: '1px solid #b7eb8f',
+              }}
+            >
               <div style={{ marginBottom: '12px' }}>
                 <Checkbox
                   checked={form.is_recurring}
-                  onChange={(e) => updateClassForm(form.id, 'is_recurring', e.target.checked)}
+                  onChange={(e) =>
+                    updateClassForm(form.id, 'is_recurring', e.target.checked)
+                  }
                 >
                   Make this class recurring
                 </Checkbox>
@@ -2272,23 +2810,42 @@ const Calendar: React.FC = React.memo(() => {
                   <Row gutter={16}>
                     <Col span={8}>
                       <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
-                          Recurrence Pattern <span style={{ color: 'red' }}>*</span>
+                        <label
+                          style={{
+                            fontWeight: 'bold',
+                            marginBottom: '8px',
+                            display: 'block',
+                          }}
+                        >
+                          Recurrence Pattern{' '}
+                          <span style={{ color: 'red' }}>*</span>
                         </label>
                         <Select
                           placeholder="Select Pattern"
                           style={{ width: '100%' }}
                           value={form.recurrence_pattern}
-                          onChange={(value) => updateClassForm(form.id, 'recurrence_pattern', value)}
+                          onChange={(value) =>
+                            updateClassForm(
+                              form.id,
+                              'recurrence_pattern',
+                              value
+                            )
+                          }
                         >
                           <Option value="WEEKLY">Weekly</Option>
                           <Option value="BIWEEKLY">Bi-weekly</Option>
                           <Option value="MONTHLY">Monthly</Option>
-                          <Option value="MONTHLY_SAME_WEEKDAY">Monthly (same weekday)</Option>
+                          <Option value="MONTHLY_SAME_WEEKDAY">
+                            Monthly (same weekday)
+                          </Option>
                           <Option value="WEEKDAYS">Weekdays (Mon-Fri)</Option>
                           <Option value="WEEKENDS">Weekends (Sat-Sun)</Option>
-                          <Option value="MONDAY_WEDNESDAY_FRIDAY">Monday, Wednesday, Friday</Option>
-                          <Option value="TUESDAY_THURSDAY">Tuesday, Thursday</Option>
+                          <Option value="MONDAY_WEDNESDAY_FRIDAY">
+                            Monday, Wednesday, Friday
+                          </Option>
+                          <Option value="TUESDAY_THURSDAY">
+                            Tuesday, Thursday
+                          </Option>
                           <Option value="DAILY">Daily</Option>
                           <Option value="CUSTOM">Custom</Option>
                         </Select>
@@ -2297,13 +2854,25 @@ const Calendar: React.FC = React.memo(() => {
 
                     <Col span={8}>
                       <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                        <label
+                          style={{
+                            fontWeight: 'bold',
+                            marginBottom: '8px',
+                            display: 'block',
+                          }}
+                        >
                           End Date
                         </label>
                         <DatePicker
                           style={{ width: '100%' }}
                           value={form.recurrence_end_date}
-                          onChange={(date) => updateClassForm(form.id, 'recurrence_end_date', date)}
+                          onChange={(date) =>
+                            updateClassForm(
+                              form.id,
+                              'recurrence_end_date',
+                              date
+                            )
+                          }
                           placeholder="Select End Date"
                         />
                       </div>
@@ -2311,22 +2880,53 @@ const Calendar: React.FC = React.memo(() => {
 
                     <Col span={8}>
                       <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                        <label
+                          style={{
+                            fontWeight: 'bold',
+                            marginBottom: '8px',
+                            display: 'block',
+                          }}
+                        >
                           Pattern Description
                         </label>
-                        <div style={{ padding: '8px', backgroundColor: '#fff7e6', borderRadius: '4px', border: '1px solid #ffd591' }}>
-                          <p style={{ margin: 0, fontSize: '12px', color: '#d46b08' }}>
-                            {form.recurrence_pattern === 'WEEKLY' && 'Every week on the same day'}
-                            {form.recurrence_pattern === 'BIWEEKLY' && 'Every two weeks on the same day'}
-                            {form.recurrence_pattern === 'MONTHLY' && 'Every month on the same date'}
-                            {form.recurrence_pattern === 'MONTHLY_SAME_WEEKDAY' && 'Every month on the same weekday'}
-                            {form.recurrence_pattern === 'WEEKDAYS' && 'Every Monday to Friday'}
-                            {form.recurrence_pattern === 'WEEKENDS' && 'Every Saturday and Sunday'}
-                            {form.recurrence_pattern === 'MONDAY_WEDNESDAY_FRIDAY' && 'Every Monday, Wednesday, and Friday'}
-                            {form.recurrence_pattern === 'TUESDAY_THURSDAY' && 'Every Tuesday and Thursday'}
+                        <div
+                          style={{
+                            padding: '8px',
+                            backgroundColor: '#fff7e6',
+                            borderRadius: '4px',
+                            border: '1px solid #ffd591',
+                          }}
+                        >
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: '12px',
+                              color: '#d46b08',
+                            }}
+                          >
+                            {form.recurrence_pattern === 'WEEKLY' &&
+                              'Every week on the same day'}
+                            {form.recurrence_pattern === 'BIWEEKLY' &&
+                              'Every two weeks on the same day'}
+                            {form.recurrence_pattern === 'MONTHLY' &&
+                              'Every month on the same date'}
+                            {form.recurrence_pattern ===
+                              'MONTHLY_SAME_WEEKDAY' &&
+                              'Every month on the same weekday'}
+                            {form.recurrence_pattern === 'WEEKDAYS' &&
+                              'Every Monday to Friday'}
+                            {form.recurrence_pattern === 'WEEKENDS' &&
+                              'Every Saturday and Sunday'}
+                            {form.recurrence_pattern ===
+                              'MONDAY_WEDNESDAY_FRIDAY' &&
+                              'Every Monday, Wednesday, and Friday'}
+                            {form.recurrence_pattern === 'TUESDAY_THURSDAY' &&
+                              'Every Tuesday and Thursday'}
                             {form.recurrence_pattern === 'DAILY' && 'Every day'}
-                            {form.recurrence_pattern === 'CUSTOM' && 'Custom pattern (describe below)'}
-                            {!form.recurrence_pattern && 'Select a pattern to see description'}
+                            {form.recurrence_pattern === 'CUSTOM' &&
+                              'Custom pattern (describe below)'}
+                            {!form.recurrence_pattern &&
+                              'Select a pattern to see description'}
                           </p>
                         </div>
                       </div>
@@ -2335,39 +2935,100 @@ const Calendar: React.FC = React.memo(() => {
 
                   {/* Custom Pattern Description */}
                   {form.recurrence_pattern === 'CUSTOM' && (
-                    <div style={{ marginTop: '12px', padding: '8px', backgroundColor: '#fff7e6', borderRadius: '4px', border: '1px solid #ffd591' }}>
-                      <p style={{ margin: 0, fontSize: '12px', color: '#d46b08' }}>
-                        ✏️ <strong>Custom Pattern:</strong> Please describe your specific recurrence pattern in detail above.
+                    <div
+                      style={{
+                        marginTop: '12px',
+                        padding: '8px',
+                        backgroundColor: '#fff7e6',
+                        borderRadius: '4px',
+                        border: '1px solid #ffd591',
+                      }}
+                    >
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: '12px',
+                          color: '#d46b08',
+                        }}
+                      >
+                        ✏️ <strong>Custom Pattern:</strong> Please describe your
+                        specific recurrence pattern in detail above.
                       </p>
                     </div>
                   )}
 
                   {/* Instance Preview */}
-                  {form.recurrence_pattern && form.recurrence_pattern !== 'CUSTOM' && form.class_date && (
-                    <div style={{ marginTop: '12px', padding: '8px', backgroundColor: '#f6ffed', borderRadius: '4px', border: '1px solid #b7eb8f' }}>
-                      <p style={{ margin: 0, fontSize: '12px', color: '#389e0d' }}>
-                        📅 <strong>Preview:</strong> This will create approximately {
-                          (() => {
+                  {form.recurrence_pattern &&
+                    form.recurrence_pattern !== 'CUSTOM' &&
+                    form.class_date && (
+                      <div
+                        style={{
+                          marginTop: '12px',
+                          padding: '8px',
+                          backgroundColor: '#f6ffed',
+                          borderRadius: '4px',
+                          border: '1px solid #b7eb8f',
+                        }}
+                      >
+                        <p
+                          style={{
+                            margin: 0,
+                            fontSize: '12px',
+                            color: '#389e0d',
+                          }}
+                        >
+                          📅 <strong>Preview:</strong> This will create
+                          approximately{' '}
+                          {(() => {
                             if (!form.class_date) return '0';
-                            const endDate = form.recurrence_end_date || dayjs().add(6, 'months');
-                            const instances = generateRecurringInstances(form, form.class_date, endDate);
+                            const endDate =
+                              form.recurrence_end_date ||
+                              dayjs().add(6, 'months');
+                            const instances = generateRecurringInstances(
+                              form,
+                              form.class_date,
+                              endDate
+                            );
                             return instances.length;
-                          })()
-                        } class instances from {form.class_date.format('MMM D, YYYY')} to {
-                          (form.recurrence_end_date || dayjs().add(6, 'months')).format('MMM D, YYYY')
-                        }
-                      </p>
-                    </div>
-                  )}
+                          })()}{' '}
+                          class instances from{' '}
+                          {form.class_date.format('MMM D, YYYY')} to{' '}
+                          {(
+                            form.recurrence_end_date || dayjs().add(6, 'months')
+                          ).format('MMM D, YYYY')}
+                        </p>
+                      </div>
+                    )}
                 </div>
               )}
             </div>
 
             {/* Class Summary */}
-            <div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f0f8ff', borderRadius: '6px', border: '1px solid #91d5ff' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#f0f8ff',
+                borderRadius: '6px',
+                border: '1px solid #91d5ff',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <div style={{ fontSize: '12px', color: '#1890ff' }}>
-                  <strong>Class Summary:</strong> {form.section_code} • {form.class_date ? form.class_date.format('MMM D, YYYY') : 'Date not set'} • {form.class_time ? `${form.class_time[0]?.format('HH:mm')} - ${form.class_time[1]?.format('HH:mm')}` : 'Time not set'}
+                  <strong>Class Summary:</strong> {form.section_code} •{' '}
+                  {form.class_date
+                    ? form.class_date.format('MMM D, YYYY')
+                    : 'Date not set'}{' '}
+                  •{' '}
+                  {form.class_time
+                    ? `${form.class_time[0]?.format('HH:mm')} - ${form.class_time[1]?.format('HH:mm')}`
+                    : 'Time not set'}
                 </div>
                 <div style={{ fontSize: '12px', color: '#1890ff' }}>
                   {form.is_recurring ? '🔄 Recurring' : '📅 One-time'}
@@ -2378,7 +3039,16 @@ const Calendar: React.FC = React.memo(() => {
         ))}
 
         {/* Action Buttons */}
-        <div style={{ marginTop: '24px', padding: '20px', borderTop: '1px solid #d9d9d9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            marginTop: '24px',
+            padding: '20px',
+            borderTop: '1px solid #d9d9d9',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
           <div>
             <Button onClick={resetClassForms} icon={<ClearOutlined />}>
               Reset All
@@ -2386,7 +3056,10 @@ const Calendar: React.FC = React.memo(() => {
           </div>
 
           <Space size="large">
-            <Button onClick={() => setIsCreateClassModalVisible(false)} size="large">
+            <Button
+              onClick={() => setIsCreateClassModalVisible(false)}
+              size="large"
+            >
               Cancel
             </Button>
             <Button
@@ -2395,9 +3068,15 @@ const Calendar: React.FC = React.memo(() => {
               loading={loading}
               size="large"
               icon={<PlusOutlined />}
-              disabled={!selectedProgram || !selectedYear || !selectedSemester || classForms.length === 0}
+              disabled={
+                !selectedProgram ||
+                !selectedYear ||
+                !selectedSemester ||
+                classForms.length === 0
+              }
             >
-              Create {classForms.length} Class{classForms.length !== 1 ? 'es' : ''}
+              Create {classForms.length} Class
+              {classForms.length !== 1 ? 'es' : ''}
             </Button>
           </Space>
         </div>
@@ -2410,8 +3089,23 @@ const Calendar: React.FC = React.memo(() => {
     <div>
       {/* Status Message */}
       {loading && (
-        <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#e6f7ff', border: '1px solid #91d5ff', borderRadius: '8px' }}>
-          <div style={{ color: '#1890ff', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div
+          style={{
+            marginBottom: '24px',
+            padding: '16px',
+            backgroundColor: '#e6f7ff',
+            border: '1px solid #91d5ff',
+            borderRadius: '8px',
+          }}
+        >
+          <div
+            style={{
+              color: '#1890ff',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
             <div className="loading-spinner"></div>
             Creating events...
           </div>
@@ -2419,34 +3113,57 @@ const Calendar: React.FC = React.memo(() => {
       )}
 
       {/* Event Creation Guide */}
-      <div style={{ marginBottom: '24px', padding: '16px', backgroundColor: '#f6ffed', border: '1px solid #b7eb8f', borderRadius: '8px' }}>
-        <div style={{ color: '#52c41a', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div
+        style={{
+          marginBottom: '24px',
+          padding: '16px',
+          backgroundColor: '#f6ffed',
+          border: '1px solid #b7eb8f',
+          borderRadius: '8px',
+        }}
+      >
+        <div
+          style={{
+            color: '#52c41a',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+          }}
+        >
           <CalendarOutlined />
           <strong>Event Creation Ready!</strong>
         </div>
         <p style={{ margin: '8px 0 0 0', color: '#666', fontSize: '14px' }}>
-          Fill in the event details below. You can add more events using the "Add More Events" button at the bottom.
+          Fill in the event details below. You can add more events using the
+          "Add More Events" button at the bottom.
         </p>
       </div>
 
       {/* Event Forms Section */}
       <div className="event-forms">
         {eventForms.map((form, index) => (
-          <div key={form.id} className="event-form" style={{
-            marginBottom: '24px',
-            padding: '20px',
-            border: '1px solid #d9d9d9',
-            borderRadius: '8px',
-            backgroundColor: 'white'
-          }}>
-            <div className="form-header" style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '20px',
-              paddingBottom: '12px',
-              borderBottom: '1px solid #f0f0f0'
-            }}>
+          <div
+            key={form.id}
+            className="event-form"
+            style={{
+              marginBottom: '24px',
+              padding: '20px',
+              border: '1px solid #d9d9d9',
+              borderRadius: '8px',
+              backgroundColor: 'white',
+            }}
+          >
+            <div
+              className="form-header"
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px',
+                paddingBottom: '12px',
+                borderBottom: '1px solid #f0f0f0',
+              }}
+            >
               <h4 style={{ margin: 0, color: '#722ed1' }}>
                 🎉 Event #{index + 1}
               </h4>
@@ -2466,20 +3183,34 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Event Name <span style={{ color: 'red' }}>*</span>
                   </label>
                   <Input
                     placeholder="e.g., Annual Sports Day, Science Fair, Parent Meeting"
                     value={form.event_name}
-                    onChange={(e) => updateEventForm(form.id, 'event_name', e.target.value)}
+                    onChange={(e) =>
+                      updateEventForm(form.id, 'event_name', e.target.value)
+                    }
                   />
                 </div>
               </Col>
 
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Date <span style={{ color: 'red' }}>*</span>
                   </label>
                   <DatePicker
@@ -2495,7 +3226,13 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Time <span style={{ color: 'red' }}>*</span>
                   </label>
                   <TimePicker.RangePicker
@@ -2510,7 +3247,13 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Students (Multiple Selection)
                   </label>
                   <Select
@@ -2518,13 +3261,15 @@ const Calendar: React.FC = React.memo(() => {
                     placeholder="Select Students"
                     style={{ width: '100%' }}
                     value={form.students}
-                    onChange={(value) => updateEventForm(form.id, 'students', value)}
+                    onChange={(value) =>
+                      updateEventForm(form.id, 'students', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                   >
-                    {(students || []).map(student => (
+                    {(students || []).map((student) => (
                       <Option key={student.id} value={student.id}>
-                        {student.name}  - {student.student_id}
+                        {student.name} - {student.student_id}
                       </Option>
                     ))}
                   </Select>
@@ -2535,7 +3280,13 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Teachers (Multiple Selection)
                   </label>
                   <Select
@@ -2543,11 +3294,13 @@ const Calendar: React.FC = React.memo(() => {
                     placeholder="Select Teachers"
                     style={{ width: '100%' }}
                     value={form.teachers}
-                    onChange={(value) => updateEventForm(form.id, 'teachers', value)}
+                    onChange={(value) =>
+                      updateEventForm(form.id, 'teachers', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                   >
-                    {(teachers || []).map(teacher => (
+                    {(teachers || []).map((teacher) => (
                       <Option key={teacher.id} value={teacher.id}>
                         {teacher.first_name} {teacher.last_name}
                       </Option>
@@ -2558,7 +3311,13 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={12}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Campus (Optional)
                   </label>
                   <Select
@@ -2578,7 +3337,7 @@ const Calendar: React.FC = React.memo(() => {
                     optionFilterProp="children"
                     allowClear
                   >
-                    {(campuses || []).map(campus => (
+                    {(campuses || []).map((campus) => (
                       <Option key={campus.id} value={campus.id}>
                         {campus.name}
                       </Option>
@@ -2591,20 +3350,28 @@ const Calendar: React.FC = React.memo(() => {
             <Row gutter={16}>
               <Col span={8}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Venue (Optional)
                   </label>
                   <Select
                     placeholder="Select Venue"
                     style={{ width: '100%' }}
                     value={form.venue_id}
-                    onChange={(value) => updateEventForm(form.id, 'venue_id', value)}
+                    onChange={(value) =>
+                      updateEventForm(form.id, 'venue_id', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                     disabled={!form.campus_id}
                     allowClear
                   >
-                    {(venues || []).map(venue => (
+                    {(venues || []).map((venue) => (
                       <Option key={venue.id} value={venue.id}>
                         {venue.name}
                       </Option>
@@ -2615,7 +3382,13 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={8}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Program (Optional)
                   </label>
                   <Select
@@ -2629,7 +3402,7 @@ const Calendar: React.FC = React.memo(() => {
                     optionFilterProp="children"
                     allowClear
                   >
-                    {(programs || []).map(program => (
+                    {(programs || []).map((program) => (
                       <Option key={program.id} value={program.id}>
                         {program.name}
                       </Option>
@@ -2640,20 +3413,28 @@ const Calendar: React.FC = React.memo(() => {
 
               <Col span={8}>
                 <div style={{ marginBottom: '16px' }}>
-                  <label style={{ fontWeight: 'bold', marginBottom: '8px', display: 'block' }}>
+                  <label
+                    style={{
+                      fontWeight: 'bold',
+                      marginBottom: '8px',
+                      display: 'block',
+                    }}
+                  >
                     Course (Optional)
                   </label>
                   <Select
                     placeholder="Select Course"
                     style={{ width: '100%' }}
                     value={form.course_id}
-                    onChange={(value) => updateEventForm(form.id, 'course_id', value)}
+                    onChange={(value) =>
+                      updateEventForm(form.id, 'course_id', value)
+                    }
                     showSearch
                     optionFilterProp="children"
                     disabled={!form.program_id}
                     allowClear
                   >
-                    {(courses || []).map(course => (
+                    {(courses || []).map((course) => (
                       <Option key={course.id} value={course.id}>
                         {course.course_code} - {course.name}
                       </Option>
@@ -2664,13 +3445,34 @@ const Calendar: React.FC = React.memo(() => {
             </Row>
 
             {/* Event Summary */}
-            < div style={{ marginTop: '16px', padding: '12px', backgroundColor: '#f9f0ff', borderRadius: '6px', border: '1px solid #d3adf7' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div
+              style={{
+                marginTop: '16px',
+                padding: '12px',
+                backgroundColor: '#f9f0ff',
+                borderRadius: '6px',
+                border: '1px solid #d3adf7',
+              }}
+            >
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
                 <div style={{ fontSize: '12px', color: '#722ed1' }}>
-                  <strong>Event Summary:</strong> {form.event_name || 'Event name not set'} • {form.date ? form.date.format('MMM D, YYYY') : 'Date not set'} • {form.time ? `${form.time[0]?.format('HH:mm')} - ${form.time[1]?.format('HH:mm')}` : 'Time not set'}
+                  <strong>Event Summary:</strong>{' '}
+                  {form.event_name || 'Event name not set'} •{' '}
+                  {form.date ? form.date.format('MMM D, YYYY') : 'Date not set'}{' '}
+                  •{' '}
+                  {form.time
+                    ? `${form.time[0]?.format('HH:mm')} - ${form.time[1]?.format('HH:mm')}`
+                    : 'Time not set'}
                 </div>
                 <div style={{ fontSize: '12px', color: '#722ed1' }}>
-                  👥 {form.students.length} Students • 👨‍🏫 {form.teachers.length} Teachers
+                  👥 {form.students.length} Students • 👨‍🏫 {form.teachers.length}{' '}
+                  Teachers
                 </div>
               </div>
             </div>
@@ -2678,51 +3480,60 @@ const Calendar: React.FC = React.memo(() => {
         ))}
 
         {/* Add More Events Button */}
-        {
-          eventForms.length > 0 && (
-            <div style={{ textAlign: 'center', marginTop: '20px' }}>
-              <Button
-                type="dashed"
-                onClick={addNewEventForm}
-                icon={<PlusOutlined />}
-                style={{ width: '200px', height: '40px' }}
-              >
-                Add Another Event
-              </Button>
-            </div>
-          )
-        }
+        {eventForms.length > 0 && (
+          <div style={{ textAlign: 'center', marginTop: '20px' }}>
+            <Button
+              type="dashed"
+              onClick={addNewEventForm}
+              icon={<PlusOutlined />}
+              style={{ width: '200px', height: '40px' }}
+            >
+              Add Another Event
+            </Button>
+          </div>
+        )}
 
         {/* Action Buttons */}
-        {
-          eventForms.length > 0 && (
-            <div style={{ marginTop: '24px', padding: '20px', borderTop: '1px solid #d9d9d9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div>
-                <Button onClick={resetEventForms} icon={<ClearOutlined />}>
-                  Reset All
-                </Button>
-              </div>
-
-              <Space size="large">
-                <Button onClick={() => setIsCreateClassModalVisible(false)} size="large">
-                  Cancel
-                </Button>
-                <Button
-                  type="primary"
-                  onClick={handleCreateEvents}
-                  loading={loading}
-                  size="large"
-                  icon={<PlusOutlined />}
-                  disabled={eventForms.length === 0}
-                >
-                  Create {eventForms.length} Event{eventForms.length !== 1 ? 's' : ''}
-                </Button>
-              </Space>
+        {eventForms.length > 0 && (
+          <div
+            style={{
+              marginTop: '24px',
+              padding: '20px',
+              borderTop: '1px solid #d9d9d9',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <div>
+              <Button onClick={resetEventForms} icon={<ClearOutlined />}>
+                Reset All
+              </Button>
             </div>
-          )
-        }
-      </div >
-    </div >
+
+            <Space size="large">
+              <Button
+                onClick={() => setIsCreateClassModalVisible(false)}
+                size="large"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="primary"
+                onClick={handleCreateEvents}
+                loading={loading}
+                size="large"
+                icon={<PlusOutlined />}
+                disabled={eventForms.length === 0}
+              >
+                Create {eventForms.length} Event
+                {eventForms.length !== 1 ? 's' : ''}
+              </Button>
+            </Space>
+          </div>
+        )}
+      </div>
+    </div>
   );
 
   // Function to refresh only classes data (much faster than full data reload)
@@ -2759,7 +3570,6 @@ const Calendar: React.FC = React.memo(() => {
         // Trigger a small state change to force re-render
         setCurrentDay(dayjs());
       }, 100);
-
     } catch (error) {
       console.error('❌ Error refreshing classes:', error);
       message.error('Failed to refresh classes data');
@@ -2782,7 +3592,6 @@ const Calendar: React.FC = React.memo(() => {
         // Trigger a small state change to force re-render
         setCurrentDay(dayjs());
       }, 200);
-
     } catch (error) {
       console.error('❌ Error refreshing events:', error);
       message.error('Failed to refresh events data');
@@ -2798,7 +3607,7 @@ const Calendar: React.FC = React.memo(() => {
     setCurrentWeek(dayjs());
 
     // Also force classes state update
-    setClasses(prev => [...prev]);
+    setClasses((prev) => [...prev]);
   };
 
   // Function to determine event colors based on section_code logic
@@ -2833,7 +3642,7 @@ const Calendar: React.FC = React.memo(() => {
   return (
     <div className="calendar-page">
       {/* Top Header - Exact design from screenshot */}
-        <div className="calendar-header">
+      <div className="calendar-header">
         <div className="header-left">
           <h1>Academic Calendar</h1>
           <p>Manage class schedules and academic planning</p>
@@ -2849,15 +3658,15 @@ const Calendar: React.FC = React.memo(() => {
               >
                 Filter Classes
               </Button>
-              <Button
-                className='create-date'
+              {/* <Button
+                className="create-date"
                 type="primary"
                 icon={<PlusOutlined />}
                 onClick={() => setIsCreateClassModalVisible(true)}
                 style={{ marginRight: '12px' }}
               >
                 Create Classes & Events
-              </Button>
+              </Button> */}
               <Button
                 className="filter-icon-button"
                 icon={<ReloadOutlined />}
@@ -2871,28 +3680,28 @@ const Calendar: React.FC = React.memo(() => {
         </div>
       </div>
 
-     <Row gutter={16} className="calendar-row">
+      <Row gutter={16} className="calendar-row">
         <Col span={24} lg={6} xxl={5} className="calendar-col">
-          <div className='calendar-sidebar-calendar'>
-             <div className='calendar-sidebar-header-main'>
-            <Button
-              type="primary"
-              icon={<PlusOutlined />}
-              size="large"
-             className='create-date'
-            >
-              Create
-            </Button>
-</div>
+          <div className="calendar-sidebar-calendar">
+            <div className="calendar-sidebar-header-main">
+              {/* <Button
+                type="primary"
+                icon={<PlusOutlined />}
+                size="large"
+                className="create-date"
+              >
+                Create
+              </Button> */}
+            </div>
             <Select
-                    className='select-actions-calendar'
-                    style={{ width: '100%' }} 
-                    placeholder="Select Actions"
-                  >
-                    <Option value="daily">Daily View</Option>
-                    <Option value="weekly">Weekly View</Option>
-                    <Option value="monthly">Monthly View</Option>
-                  </Select>
+              className="select-actions-calendar"
+              style={{ width: '100%' }}
+              placeholder="Select Actions"
+            >
+              <Option value="daily">Daily View</Option>
+              <Option value="weekly">Weekly View</Option>
+              <Option value="monthly">Monthly View</Option>
+            </Select>
 
             {/* Mini Calendar */}
             <div style={styles.miniCalendar}>
@@ -2907,8 +3716,10 @@ const Calendar: React.FC = React.memo(() => {
               </div>
 
               <div style={styles.miniCalendarDays}>
-                {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
-                  <div key={day} style={styles.miniCalendarDayHeader}>{day}</div>
+                {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map((day) => (
+                  <div key={day} style={styles.miniCalendarDayHeader}>
+                    {day}
+                  </div>
                 ))}
               </div>
 
@@ -2920,7 +3731,12 @@ const Calendar: React.FC = React.memo(() => {
                   const hasEvent = [4, 17, 18].includes(day);
 
                   if (day <= 0 || day > 31) {
-                    return <div key={index} style={styles.miniCalendarEmptyDay}></div>;
+                    return (
+                      <div
+                        key={index}
+                        style={styles.miniCalendarEmptyDay}
+                      ></div>
+                    );
                   }
 
                   return (
@@ -2928,15 +3744,21 @@ const Calendar: React.FC = React.memo(() => {
                       key={index}
                       style={{
                         ...styles.miniCalendarDay,
-                        ...(isSelected && styles.miniCalendarSelectedDay)
+                        ...(isSelected && styles.miniCalendarSelectedDay),
                       }}
                     >
-                      <span style={isSelected ? styles.miniCalendarSelectedText : {}}>{day}</span>
+                      <span
+                        style={
+                          isSelected ? styles.miniCalendarSelectedText : {}
+                        }
+                      >
+                        {day}
+                      </span>
                       {hasEvent && (
                         <div
                           style={{
                             ...styles.miniCalendarEventDot,
-                            backgroundColor: day === 4 ? '#0b99ff' : '#00b512'
+                            backgroundColor: day === 4 ? '#0b99ff' : '#00b512',
                           }}
                         ></div>
                       )}
@@ -2946,37 +3768,45 @@ const Calendar: React.FC = React.memo(() => {
               </div>
             </div>
 
-           <div className='calendar-sidebar-eventslist'>
-                     <h3 className='events-list-title'>Upcoming Events</h3>  
-                        <div className="calendar-event-item-main">
-                          <div  className="calendar-event-item">
-                            <div className="calendar-event-icon">
-                                <div className="calendar-event-title success">Event Title</div>
-                                <div className="calendar-event-date"><ClockCircleOutlined />2023-10-01</div> 
-                            </div>
-                            <div className="calendar-event-details">
-                              <RightOutlined />
-                            </div>
-                          </div> 
-                          <div  className="calendar-event-item">
-                            <div className="calendar-event-icon">
-                                <div className="calendar-event-title primary">Parent Meeting</div>
-                                <div className="calendar-event-date"><ClockCircleOutlined />2023-10-01</div> 
-                            </div>
-                            <div className="calendar-event-details">
-                              <RightOutlined />
-                            </div>
-                          </div> 
-                        </div>
+            <div className="calendar-sidebar-eventslist">
+              <h3 className="events-list-title">Upcoming Events</h3>
+              <div className="calendar-event-item-main">
+                <div className="calendar-event-item">
+                  <div className="calendar-event-icon">
+                    <div className="calendar-event-title success">
+                      Event Title
+                    </div>
+                    <div className="calendar-event-date">
+                      <ClockCircleOutlined />
+                      2023-10-01
+                    </div>
                   </div>
+                  <div className="calendar-event-details">
+                    <RightOutlined />
+                  </div>
+                </div>
+                <div className="calendar-event-item">
+                  <div className="calendar-event-icon">
+                    <div className="calendar-event-title primary">
+                      Parent Meeting
+                    </div>
+                    <div className="calendar-event-date">
+                      <ClockCircleOutlined />
+                      2023-10-01
+                    </div>
+                  </div>
+                  <div className="calendar-event-details">
+                    <RightOutlined />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </Col>
 
         {/* Main Content Area */}
-       <Col span={24} lg={18} xxl={19} className="calendar-col">
-           <Card className="calendar-card">
-            {renderView()}
-          </Card>
+        <Col span={24} lg={18} xxl={19} className="calendar-col">
+          <Card className="calendar-card">{renderView()}</Card>
         </Col>
       </Row>
 
@@ -3203,8 +4033,8 @@ const Calendar: React.FC = React.memo(() => {
                   <strong>Date:</strong>{' '}
                   {selectedClassForDetails.meeting_date
                     ? dayjs(selectedClassForDetails.meeting_date).format(
-                      'MMM D, YYYY'
-                    )
+                        'MMM D, YYYY'
+                      )
                     : 'N/A'}
                 </div>
                 <div style={{ marginBottom: '16px' }}>
@@ -3219,8 +4049,8 @@ const Calendar: React.FC = React.memo(() => {
                   <strong>Created:</strong>{' '}
                   {selectedClassForDetails.created_at
                     ? dayjs(selectedClassForDetails.created_at).format(
-                      'MMM D, YYYY'
-                    )
+                        'MMM D, YYYY'
+                      )
                     : 'N/A'}
                 </div>
               </Col>
@@ -3302,9 +4132,9 @@ const Calendar: React.FC = React.memo(() => {
                       selectedClassForDetails._hourEvents
                     )?.length === 1
                       ? (
-                        selectedClassForDetails._dayEvents?.[0] ||
-                        selectedClassForDetails._hourEvents?.[0]
-                      )?.meetingTime?.venue?.name || 'Unknown'
+                          selectedClassForDetails._dayEvents?.[0] ||
+                          selectedClassForDetails._hourEvents?.[0]
+                        )?.meetingTime?.venue?.name || 'Unknown'
                       : `${(selectedClassForDetails._dayEvents || selectedClassForDetails._hourEvents)?.length || 0} Venues`}
                   </div>
                   <div style={{ marginBottom: '8px' }}>
@@ -3314,9 +4144,9 @@ const Calendar: React.FC = React.memo(() => {
                       selectedClassForDetails._hourEvents
                     )?.length === 1
                       ? (
-                        selectedClassForDetails._dayEvents?.[0] ||
-                        selectedClassForDetails._hourEvents?.[0]
-                      )?.class?.campus?.name || 'Unknown'
+                          selectedClassForDetails._dayEvents?.[0] ||
+                          selectedClassForDetails._hourEvents?.[0]
+                        )?.class?.campus?.name || 'Unknown'
                       : `${(selectedClassForDetails._dayEvents || selectedClassForDetails._hourEvents)?.length || 0} Campuses`}
                   </div>
                 </Col>
@@ -3325,226 +4155,211 @@ const Calendar: React.FC = React.memo(() => {
               {/* Summary Counts */}
               {(selectedClassForDetails._dayEvents ||
                 selectedClassForDetails._hourEvents) && (
-                  <div
-                    style={{
-                      marginTop: '16px',
-                      padding: '12px',
-                      backgroundColor: '#e6f7ff',
-                      borderRadius: '6px',
-                      border: '1px solid #91d5ff',
-                    }}
-                  >
-                    <Row gutter={24}>
-                      <Col span={12}>
-                        <div style={{ textAlign: 'center' }}>
-                          <div
-                            style={{
-                              fontSize: '20px',
-                              fontWeight: 'bold',
-                              color: '#1890ff',
-                            }}
-                          >
-                            {(
-                              selectedClassForDetails._dayEvents ||
-                              selectedClassForDetails._hourEvents
-                            )?.filter((event: any) => {
-                              const colors = getEventColors(event.section_code);
-                              return colors.type === 'CLASS';
-                            }).length || 0}
-                          </div>
-                          <div style={{ fontSize: '14px', color: '#666' }}>
-                            📚 Total Classes
-                          </div>
+                <div
+                  style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    backgroundColor: '#e6f7ff',
+                    borderRadius: '6px',
+                    border: '1px solid #91d5ff',
+                  }}
+                >
+                  <Row gutter={24}>
+                    <Col span={12}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div
+                          style={{
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            color: '#1890ff',
+                          }}
+                        >
+                          {(
+                            selectedClassForDetails._dayEvents ||
+                            selectedClassForDetails._hourEvents
+                          )?.filter((event: any) => {
+                            const colors = getEventColors(event.section_code);
+                            return colors.type === 'CLASS';
+                          }).length || 0}
                         </div>
-                      </Col>
-                      <Col span={12}>
-                        <div style={{ textAlign: 'center' }}>
-                          <div
-                            style={{
-                              fontSize: '20px',
-                              fontWeight: 'bold',
-                              color: '#f5222d',
-                            }}
-                          >
-                            {(
-                              selectedClassForDetails._dayEvents ||
-                              selectedClassForDetails._hourEvents
-                            )?.filter((event: any) => {
-                              const colors = getEventColors(event.section_code);
-                              return colors.type === 'EVENT';
-                            }).length || 0}
-                          </div>
-                          <div style={{ fontSize: '14px', color: '#666' }}>
-                            🎉 Total Events
-                          </div>
+                        <div style={{ fontSize: '14px', color: '#666' }}>
+                          📚 Total Classes
                         </div>
-                      </Col>
-                    </Row>
-                  </div>
-                )}
+                      </div>
+                    </Col>
+                    <Col span={12}>
+                      <div style={{ textAlign: 'center' }}>
+                        <div
+                          style={{
+                            fontSize: '20px',
+                            fontWeight: 'bold',
+                            color: '#f5222d',
+                          }}
+                        >
+                          {(
+                            selectedClassForDetails._dayEvents ||
+                            selectedClassForDetails._hourEvents
+                          )?.filter((event: any) => {
+                            const colors = getEventColors(event.section_code);
+                            return colors.type === 'EVENT';
+                          }).length || 0}
+                        </div>
+                        <div style={{ fontSize: '14px', color: '#666' }}>
+                          🎉 Total Events
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              )}
             </div>
 
             {/* Events List */}
             {(selectedClassForDetails._dayEvents ||
               selectedClassForDetails._hourEvents) && (
-                <div>
-                  <h3 style={{ marginBottom: '16px', color: '#1890ff' }}>
-                    📋 Events (
-                    {selectedClassForDetails._dayEvents?.length ||
-                      selectedClassForDetails._hourEvents?.length ||
-                      0}
-                    )
-                  </h3>
+              <div>
+                <h3 style={{ marginBottom: '16px', color: '#1890ff' }}>
+                  📋 Events (
+                  {selectedClassForDetails._dayEvents?.length ||
+                    selectedClassForDetails._hourEvents?.length ||
+                    0}
+                  )
+                </h3>
 
-                  {(
-                    selectedClassForDetails._dayEvents ||
-                    selectedClassForDetails._hourEvents
-                  )?.map((event: any, index: number) => {
-                    const colors = getEventColors(event.section_code);
+                {(
+                  selectedClassForDetails._dayEvents ||
+                  selectedClassForDetails._hourEvents
+                )?.map((event: any, index: number) => {
+                  const colors = getEventColors(event.section_code);
 
-                    return (
-                      <div
-                        key={event.id}
+                  return (
+                    <div
+                      key={event.id}
+                      style={{
+                        background: colors.background,
+                        color: '#000',
+                        padding: '16px',
+                        borderRadius: '8px',
+                        marginBottom: '12px',
+                        border: 'none',
+                        position: 'relative',
+                      }}
+                    >
+                      {/* Event type indicator */}
+                      <span
                         style={{
-                          background: colors.background,
-                          color: '#000',
-                          padding: '16px',
-                          borderRadius: '8px',
-                          marginBottom: '12px',
-                          border: 'none',
-                          position: 'relative',
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          fontSize: '16px',
+                          opacity: '0.9',
                         }}
                       >
-                        {/* Event type indicator */}
-                        <span
-                          style={{
-                            position: 'absolute',
-                            top: '12px',
-                            right: '12px',
-                            fontSize: '16px',
-                            opacity: '0.9',
-                          }}
-                        >
-                          {colors.icon}
-                        </span>
+                        {colors.icon}
+                      </span>
 
-                        <div style={{ marginBottom: '8px' }}>
-                          <strong style={{ fontSize: '16px' }}>
-                            {event.title}
-                          </strong>
-                        </div>
+                      <div style={{ marginBottom: '8px' }}>
+                        <strong style={{ fontSize: '16px' }}>
+                          {event.title}
+                        </strong>
+                      </div>
 
-                        <Row gutter={16}>
-                          <Col span={6}>
-                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                              <strong>⏰ Time:</strong>{' '}
-                              {event.start.format('HH:mm')} -{' '}
-                              {event.end.format('HH:mm')}
-                            </div>
-                          </Col>
-                          <Col span={6}>
-                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                              <strong>🏢 Venue:</strong>{' '}
-                              {event.meetingTime.venue?.name || 'Unknown'}
-                            </div>
-                          </Col>
-                          <Col span={6}>
-                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                              <strong>🏫 Campus:</strong>{' '}
-                              {event.class?.campus?.name || 'Unknown'}
-                            </div>
-                          </Col>
-                          <Col span={6}>
-                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                              <strong>📚 Type:</strong> {colors.type}
-                            </div>
-                          </Col>
-                        </Row>
+                      <Row gutter={16}>
+                        <Col span={6}>
+                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                            <strong>⏰ Time:</strong>{' '}
+                            {event.start.format('HH:mm')} -{' '}
+                            {event.end.format('HH:mm')}
+                          </div>
+                        </Col>
+                        <Col span={6}>
+                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                            <strong>🏢 Venue:</strong>{' '}
+                            {event.meetingTime.venue?.name || 'Unknown'}
+                          </div>
+                        </Col>
+                        <Col span={6}>
+                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                            <strong>🏫 Campus:</strong>{' '}
+                            {event.class?.campus?.name || 'Unknown'}
+                          </div>
+                        </Col>
+                        <Col span={6}>
+                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                            <strong>📚 Type:</strong> {colors.type}
+                          </div>
+                        </Col>
+                      </Row>
 
-                        {/* Additional Event Details */}
-                        <div style={{ marginTop: '8px' }}>
-                          {event.class?.course && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                opacity: '0.8',
-                                marginBottom: '4px',
-                              }}
-                            >
-                              <strong>📖 Course:</strong>{' '}
-                              {event.class.course.name ||
-                                event.class.course.code ||
-                                'Unknown'}
-                            </div>
-                          )}
+                      {/* Additional Event Details */}
+                      <div style={{ marginTop: '8px' }}>
+                        {event.class?.course && (
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              opacity: '0.8',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            <strong>📖 Course:</strong>{' '}
+                            {event.class.course.name ||
+                              event.class.course.code ||
+                              'Unknown'}
+                          </div>
+                        )}
 
-                          {event.class?.instructor && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                opacity: '0.8',
-                                marginBottom: '4px',
-                              }}
-                            >
-                              <strong>👨‍🏫 Instructor:</strong>{' '}
-                              {event.class.instructor.first_name}{' '}
-                              {event.class.instructor.last_name}
-                            </div>
-                          )}
+                        {event.class?.instructor && (
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              opacity: '0.8',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            <strong>👨‍🏫 Instructor:</strong>{' '}
+                            {event.class.instructor.first_name}{' '}
+                            {event.class.instructor.last_name}
+                          </div>
+                        )}
 
-                          {event.class?.teacher && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                opacity: '0.8',
-                                marginBottom: '4px',
-                              }}
-                            >
-                              <strong>👨‍🏫 Teacher:</strong>{' '}
-                              {event.class.teacher.first_name}{' '}
-                              {event.class.teacher.last_name}
-                            </div>
-                          )}
+                        {event.class?.teacher && (
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              opacity: '0.8',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            <strong>👨‍🏫 Teacher:</strong>{' '}
+                            {event.class.teacher.first_name}{' '}
+                            {event.class.teacher.last_name}
+                          </div>
+                        )}
 
-                          {event.class?.max_capacity && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                opacity: '0.8',
-                                marginBottom: '4px',
-                              }}
-                            >
-                              <strong>👥 Capacity:</strong>{' '}
-                              {event.class.max_capacity}
-                            </div>
-                          )}
-                        </div>
+                        {event.class?.max_capacity && (
+                          <div
+                            style={{
+                              fontSize: '12px',
+                              opacity: '0.8',
+                              marginBottom: '4px',
+                            }}
+                          >
+                            <strong>👥 Capacity:</strong>{' '}
+                            {event.class.max_capacity}
+                          </div>
+                        )}
+                      </div>
 
-                        {/* Section Code and Type based on section code */}
-                        <div
-                          style={{
-                            marginTop: '8px',
-                            display: 'flex',
-                            gap: '8px',
-                            flexWrap: 'wrap',
-                          }}
-                        >
-                          {event.section_code && (
-                            <div
-                              style={{
-                                fontSize: '12px',
-                                opacity: '0.8',
-                                backgroundColor: 'rgba(255,255,255,0.1)',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                display: 'inline-block',
-                              }}
-                            >
-                              <strong>🏷️ Section:</strong> {event.section_code}
-                            </div>
-                          )}
-
-                          {/* Event Type based on section code */}
+                      {/* Section Code and Type based on section code */}
+                      <div
+                        style={{
+                          marginTop: '8px',
+                          display: 'flex',
+                          gap: '8px',
+                          flexWrap: 'wrap',
+                        }}
+                      >
+                        {event.section_code && (
                           <div
                             style={{
                               fontSize: '12px',
@@ -3555,14 +4370,29 @@ const Calendar: React.FC = React.memo(() => {
                               display: 'inline-block',
                             }}
                           >
-                            <strong>📚 Type:</strong> {colors.type}
+                            <strong>🏷️ Section:</strong> {event.section_code}
                           </div>
+                        )}
+
+                        {/* Event Type based on section code */}
+                        <div
+                          style={{
+                            fontSize: '12px',
+                            opacity: '0.8',
+                            backgroundColor: 'rgba(255,255,255,0.1)',
+                            padding: '4px 8px',
+                            borderRadius: '4px',
+                            display: 'inline-block',
+                          }}
+                        >
+                          <strong>📚 Type:</strong> {colors.type}
                         </div>
                       </div>
-                    );
-                  })}
-                </div>
-              )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Single Class Details (fallback) */}
             {!selectedClassForDetails._dayEvents &&
@@ -3593,8 +4423,8 @@ const Calendar: React.FC = React.memo(() => {
                         <strong>Date:</strong>{' '}
                         {selectedClassForDetails.meeting_date
                           ? dayjs(selectedClassForDetails.meeting_date).format(
-                            'MMM D, YYYY'
-                          )
+                              'MMM D, YYYY'
+                            )
                           : 'N/A'}
                       </div>
                       <div style={{ marginBottom: '16px' }}>
@@ -3610,8 +4440,8 @@ const Calendar: React.FC = React.memo(() => {
                         <strong>Created:</strong>{' '}
                         {selectedClassForDetails.created_at
                           ? dayjs(selectedClassForDetails.created_at).format(
-                            'MMM D, YYYY'
-                          )
+                              'MMM D, YYYY'
+                            )
                           : 'N/A'}
                       </div>
                     </Col>

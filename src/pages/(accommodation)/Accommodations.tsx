@@ -9,7 +9,7 @@ import { GridViewIcon, Menu01Icon } from '@hugeicons/core-free-icons';
 import AddEditRoomModal, { type RoomFormValues } from './AddEditRoomModal';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+const API_BASE_URL = 'http://103.189.173.7:8080/api/v1';
 
 type StudentAssignment = {
   id: string;
@@ -96,6 +96,17 @@ export default function AccommodationsPage() {
   }, []);
   return (
     <div className={'relative pb-32'}>
+      <PageTitleArea title={'Room Assignment'}>
+        <div className={'flex items-center gap-12'}>
+          <Button
+            style={'gray-border'}
+            className={'max-md:hidden'}
+            onClick={() => navigate('/applications')}
+          >
+            Applications
+          </Button>
+        </div>
+      </PageTitleArea>
       <div className={'px-24 max-md:px-16'}>
         {/* Room Inventory Section */}
         <div className={'rounded-20 border-linePr bg-bgSec mt-16 border p-16'}>
