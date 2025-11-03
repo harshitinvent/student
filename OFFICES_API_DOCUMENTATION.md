@@ -7,7 +7,7 @@ The Offices module provides comprehensive meeting management, video conferencing
 ## Base URL
 
 ```
-http://103.189.173.7:8080/api/offices
+http://localhost:8080/api/offices
 ```
 
 ## Authentication
@@ -677,7 +677,7 @@ Authorization: Bearer <your-jwt-token>
 ### Environment Variables
 
 ```bash
-OFFICES_API_BASE_URL=http://103.189.173.7:8080/api
+OFFICES_API_BASE_URL=http://localhost:8080/api
 OFFICES_SIGNALING_SERVER=wss://signaling.example.com
 OFFICES_STORAGE_BUCKET=meeting-recordings
 OFFICES_MAX_FILE_SIZE=1073741824

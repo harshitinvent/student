@@ -29,7 +29,7 @@ import EditIcon from '../../assets/edit.svg';
 
 import BookMarkIcon from '../../assets/bookmark.svg';
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/programs';
+const API_BASE = 'http://localhost:8080/api/programs';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');
@@ -72,7 +72,7 @@ async function fetchPrograms(
 
 async function fetchDepartments(): Promise<Department[]> {
   console.log('Fetching departments from API...');
-  const res = await fetch('http://103.189.173.7:8080/api/departments', {
+  const res = await fetch('http://localhost:8080/api/departments', {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch departments');
@@ -82,7 +82,7 @@ async function fetchDepartments(): Promise<Department[]> {
 }
 async function fetchStreams(): Promise<Department[]> {
   console.log('Fetching departments from API...');
-  const res = await fetch('http://103.189.173.7:8080/api/streams', {
+  const res = await fetch('http://localhost:8080/api/streams', {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch departments');

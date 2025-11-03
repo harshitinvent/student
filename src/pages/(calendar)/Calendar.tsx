@@ -503,20 +503,20 @@ const Calendar: React.FC = React.memo(() => {
         teachersData,
         studentsData,
       ] = await Promise.all([
-        fetch('http://103.189.173.7:8080/api/common/years').then((res) =>
+        fetch('http://localhost:8080/api/common/years').then((res) =>
           res.json()
         ),
-        fetch('http://103.189.173.7:8080/api/common/programs').then((res) =>
+        fetch('http://localhost:8080/api/common/programs').then((res) =>
           res.json()
         ),
-        fetch('http://103.189.173.7:8080/api/common/campuses').then((res) =>
+        fetch('http://localhost:8080/api/common/campuses').then((res) =>
           res.json()
         ),
         classAPI.getAllClasses({ semester_id: '' }),
-        fetch('http://103.189.173.7:8080/api/common/teachers').then((res) =>
+        fetch('http://localhost:8080/api/common/teachers').then((res) =>
           res.json()
         ),
-        fetch('http://103.189.173.7:8080/api/common/students', {
+        fetch('http://localhost:8080/api/common/students', {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -549,7 +549,7 @@ const Calendar: React.FC = React.memo(() => {
     try {
       console.log('Loading semesters for year:', yearId);
       const response = await fetch(
-        `http://103.189.173.7:8080/api/common/years/${yearId}/semesters?year_id=${yearId}`
+        `http://localhost:8080/api/common/years/${yearId}/semesters?year_id=${yearId}`
       );
       const semestersData = await response.json();
       console.log('Semesters API response:', semestersData);
@@ -568,7 +568,7 @@ const Calendar: React.FC = React.memo(() => {
     try {
       console.log('Loading courses for program:', programId);
       const response = await fetch(
-        `http://103.189.173.7:8080/api/common/programs/${programId}/courses?program_id=${programId}`
+        `http://localhost:8080/api/common/programs/${programId}/courses?program_id=${programId}`
       );
       const coursesData = await response.json();
       console.log('Courses API response:', coursesData);
@@ -587,7 +587,7 @@ const Calendar: React.FC = React.memo(() => {
     try {
       console.log('Loading venues for campus:', campusId);
       const response = await fetch(
-        `http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
+        `http://localhost:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
       );
       const venuesData = await response.json();
       console.log('Venues API response:', venuesData);
@@ -606,7 +606,7 @@ const Calendar: React.FC = React.memo(() => {
     try {
       console.log('Loading venues for campus:', campusId);
       const response = await fetch(
-        `http://103.189.173.7:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
+        `http://localhost:8080/api/common/campuses/${campusId}/venues?campus_id=${campusId}`
       );
       const venuesData = await response.json();
       console.log('Venues API response:', venuesData);
@@ -755,7 +755,7 @@ const Calendar: React.FC = React.memo(() => {
 
       // Call the new combined API endpoint
       const response = await fetch(
-        'http://103.189.173.7:8080/api/v1/admin/academics/classes/with-meeting-time',
+        'http://localhost:8080/api/v1/admin/academics/classes/with-meeting-time',
         {
           method: 'POST',
           headers: {
@@ -1117,10 +1117,10 @@ const Calendar: React.FC = React.memo(() => {
                               }}
                             >
                               {event.class.teacher?.first_name &&
-                              event.class.teacher?.last_name
+                                event.class.teacher?.last_name
                                 ? `${event.class.teacher.first_name} ${event.class.teacher.last_name}`
                                 : event.class.instructor?.first_name &&
-                                    event.class.instructor?.last_name
+                                  event.class.instructor?.last_name
                                   ? `${event.class.instructor.first_name} ${event.class.instructor.last_name}`
                                   : 'Unknown Teacher'}
                             </div>
@@ -1522,10 +1522,10 @@ const Calendar: React.FC = React.memo(() => {
                             >
                               <UserOutlined />{' '}
                               {event.class.teacher?.first_name &&
-                              event.class.teacher?.last_name
+                                event.class.teacher?.last_name
                                 ? `${event.class.teacher.first_name} ${event.class.teacher.last_name}`
                                 : event.class.instructor?.first_name &&
-                                    event.class.instructor?.last_name
+                                  event.class.instructor?.last_name
                                   ? `${event.class.instructor.first_name} ${event.class.instructor.last_name}`
                                   : 'Unknown Teacher'}
                             </div>
@@ -1798,7 +1798,7 @@ const Calendar: React.FC = React.memo(() => {
 
       // Single API call with all classes data
       const response = await fetch(
-        'http://103.189.173.7:8080/api/v1/admin/academics/classes/bulk-create',
+        'http://localhost:8080/api/v1/admin/academics/classes/bulk-create',
         {
           method: 'POST',
           headers: {
@@ -2308,7 +2308,7 @@ const Calendar: React.FC = React.memo(() => {
 
       // API call for events (you can use the same endpoint or create a new one)
       const response = await fetch(
-        'http://103.189.173.7:8080/api/v1/admin/academics/events/bulk-create',
+        'http://localhost:8080/api/v1/admin/academics/events/bulk-create',
         {
           method: 'POST',
           headers: {
@@ -4033,8 +4033,8 @@ const Calendar: React.FC = React.memo(() => {
                   <strong>Date:</strong>{' '}
                   {selectedClassForDetails.meeting_date
                     ? dayjs(selectedClassForDetails.meeting_date).format(
-                        'MMM D, YYYY'
-                      )
+                      'MMM D, YYYY'
+                    )
                     : 'N/A'}
                 </div>
                 <div style={{ marginBottom: '16px' }}>
@@ -4049,8 +4049,8 @@ const Calendar: React.FC = React.memo(() => {
                   <strong>Created:</strong>{' '}
                   {selectedClassForDetails.created_at
                     ? dayjs(selectedClassForDetails.created_at).format(
-                        'MMM D, YYYY'
-                      )
+                      'MMM D, YYYY'
+                    )
                     : 'N/A'}
                 </div>
               </Col>
@@ -4132,9 +4132,9 @@ const Calendar: React.FC = React.memo(() => {
                       selectedClassForDetails._hourEvents
                     )?.length === 1
                       ? (
-                          selectedClassForDetails._dayEvents?.[0] ||
-                          selectedClassForDetails._hourEvents?.[0]
-                        )?.meetingTime?.venue?.name || 'Unknown'
+                        selectedClassForDetails._dayEvents?.[0] ||
+                        selectedClassForDetails._hourEvents?.[0]
+                      )?.meetingTime?.venue?.name || 'Unknown'
                       : `${(selectedClassForDetails._dayEvents || selectedClassForDetails._hourEvents)?.length || 0} Venues`}
                   </div>
                   <div style={{ marginBottom: '8px' }}>
@@ -4144,9 +4144,9 @@ const Calendar: React.FC = React.memo(() => {
                       selectedClassForDetails._hourEvents
                     )?.length === 1
                       ? (
-                          selectedClassForDetails._dayEvents?.[0] ||
-                          selectedClassForDetails._hourEvents?.[0]
-                        )?.class?.campus?.name || 'Unknown'
+                        selectedClassForDetails._dayEvents?.[0] ||
+                        selectedClassForDetails._hourEvents?.[0]
+                      )?.class?.campus?.name || 'Unknown'
                       : `${(selectedClassForDetails._dayEvents || selectedClassForDetails._hourEvents)?.length || 0} Campuses`}
                   </div>
                 </Col>
@@ -4155,211 +4155,226 @@ const Calendar: React.FC = React.memo(() => {
               {/* Summary Counts */}
               {(selectedClassForDetails._dayEvents ||
                 selectedClassForDetails._hourEvents) && (
-                <div
-                  style={{
-                    marginTop: '16px',
-                    padding: '12px',
-                    backgroundColor: '#e6f7ff',
-                    borderRadius: '6px',
-                    border: '1px solid #91d5ff',
-                  }}
-                >
-                  <Row gutter={24}>
-                    <Col span={12}>
-                      <div style={{ textAlign: 'center' }}>
-                        <div
-                          style={{
-                            fontSize: '20px',
-                            fontWeight: 'bold',
-                            color: '#1890ff',
-                          }}
-                        >
-                          {(
-                            selectedClassForDetails._dayEvents ||
-                            selectedClassForDetails._hourEvents
-                          )?.filter((event: any) => {
-                            const colors = getEventColors(event.section_code);
-                            return colors.type === 'CLASS';
-                          }).length || 0}
+                  <div
+                    style={{
+                      marginTop: '16px',
+                      padding: '12px',
+                      backgroundColor: '#e6f7ff',
+                      borderRadius: '6px',
+                      border: '1px solid #91d5ff',
+                    }}
+                  >
+                    <Row gutter={24}>
+                      <Col span={12}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div
+                            style={{
+                              fontSize: '20px',
+                              fontWeight: 'bold',
+                              color: '#1890ff',
+                            }}
+                          >
+                            {(
+                              selectedClassForDetails._dayEvents ||
+                              selectedClassForDetails._hourEvents
+                            )?.filter((event: any) => {
+                              const colors = getEventColors(event.section_code);
+                              return colors.type === 'CLASS';
+                            }).length || 0}
+                          </div>
+                          <div style={{ fontSize: '14px', color: '#666' }}>
+                            📚 Total Classes
+                          </div>
                         </div>
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                          📚 Total Classes
+                      </Col>
+                      <Col span={12}>
+                        <div style={{ textAlign: 'center' }}>
+                          <div
+                            style={{
+                              fontSize: '20px',
+                              fontWeight: 'bold',
+                              color: '#f5222d',
+                            }}
+                          >
+                            {(
+                              selectedClassForDetails._dayEvents ||
+                              selectedClassForDetails._hourEvents
+                            )?.filter((event: any) => {
+                              const colors = getEventColors(event.section_code);
+                              return colors.type === 'EVENT';
+                            }).length || 0}
+                          </div>
+                          <div style={{ fontSize: '14px', color: '#666' }}>
+                            🎉 Total Events
+                          </div>
                         </div>
-                      </div>
-                    </Col>
-                    <Col span={12}>
-                      <div style={{ textAlign: 'center' }}>
-                        <div
-                          style={{
-                            fontSize: '20px',
-                            fontWeight: 'bold',
-                            color: '#f5222d',
-                          }}
-                        >
-                          {(
-                            selectedClassForDetails._dayEvents ||
-                            selectedClassForDetails._hourEvents
-                          )?.filter((event: any) => {
-                            const colors = getEventColors(event.section_code);
-                            return colors.type === 'EVENT';
-                          }).length || 0}
-                        </div>
-                        <div style={{ fontSize: '14px', color: '#666' }}>
-                          🎉 Total Events
-                        </div>
-                      </div>
-                    </Col>
-                  </Row>
-                </div>
-              )}
+                      </Col>
+                    </Row>
+                  </div>
+                )}
             </div>
 
             {/* Events List */}
             {(selectedClassForDetails._dayEvents ||
               selectedClassForDetails._hourEvents) && (
-              <div>
-                <h3 style={{ marginBottom: '16px', color: '#1890ff' }}>
-                  📋 Events (
-                  {selectedClassForDetails._dayEvents?.length ||
-                    selectedClassForDetails._hourEvents?.length ||
-                    0}
-                  )
-                </h3>
+                <div>
+                  <h3 style={{ marginBottom: '16px', color: '#1890ff' }}>
+                    📋 Events (
+                    {selectedClassForDetails._dayEvents?.length ||
+                      selectedClassForDetails._hourEvents?.length ||
+                      0}
+                    )
+                  </h3>
 
-                {(
-                  selectedClassForDetails._dayEvents ||
-                  selectedClassForDetails._hourEvents
-                )?.map((event: any, index: number) => {
-                  const colors = getEventColors(event.section_code);
+                  {(
+                    selectedClassForDetails._dayEvents ||
+                    selectedClassForDetails._hourEvents
+                  )?.map((event: any, index: number) => {
+                    const colors = getEventColors(event.section_code);
 
-                  return (
-                    <div
-                      key={event.id}
-                      style={{
-                        background: colors.background,
-                        color: '#000',
-                        padding: '16px',
-                        borderRadius: '8px',
-                        marginBottom: '12px',
-                        border: 'none',
-                        position: 'relative',
-                      }}
-                    >
-                      {/* Event type indicator */}
-                      <span
-                        style={{
-                          position: 'absolute',
-                          top: '12px',
-                          right: '12px',
-                          fontSize: '16px',
-                          opacity: '0.9',
-                        }}
-                      >
-                        {colors.icon}
-                      </span>
-
-                      <div style={{ marginBottom: '8px' }}>
-                        <strong style={{ fontSize: '16px' }}>
-                          {event.title}
-                        </strong>
-                      </div>
-
-                      <Row gutter={16}>
-                        <Col span={6}>
-                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                            <strong>⏰ Time:</strong>{' '}
-                            {event.start.format('HH:mm')} -{' '}
-                            {event.end.format('HH:mm')}
-                          </div>
-                        </Col>
-                        <Col span={6}>
-                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                            <strong>🏢 Venue:</strong>{' '}
-                            {event.meetingTime.venue?.name || 'Unknown'}
-                          </div>
-                        </Col>
-                        <Col span={6}>
-                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                            <strong>🏫 Campus:</strong>{' '}
-                            {event.class?.campus?.name || 'Unknown'}
-                          </div>
-                        </Col>
-                        <Col span={6}>
-                          <div style={{ fontSize: '12px', opacity: '0.9' }}>
-                            <strong>📚 Type:</strong> {colors.type}
-                          </div>
-                        </Col>
-                      </Row>
-
-                      {/* Additional Event Details */}
-                      <div style={{ marginTop: '8px' }}>
-                        {event.class?.course && (
-                          <div
-                            style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px',
-                            }}
-                          >
-                            <strong>📖 Course:</strong>{' '}
-                            {event.class.course.name ||
-                              event.class.course.code ||
-                              'Unknown'}
-                          </div>
-                        )}
-
-                        {event.class?.instructor && (
-                          <div
-                            style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px',
-                            }}
-                          >
-                            <strong>👨‍🏫 Instructor:</strong>{' '}
-                            {event.class.instructor.first_name}{' '}
-                            {event.class.instructor.last_name}
-                          </div>
-                        )}
-
-                        {event.class?.teacher && (
-                          <div
-                            style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px',
-                            }}
-                          >
-                            <strong>👨‍🏫 Teacher:</strong>{' '}
-                            {event.class.teacher.first_name}{' '}
-                            {event.class.teacher.last_name}
-                          </div>
-                        )}
-
-                        {event.class?.max_capacity && (
-                          <div
-                            style={{
-                              fontSize: '12px',
-                              opacity: '0.8',
-                              marginBottom: '4px',
-                            }}
-                          >
-                            <strong>👥 Capacity:</strong>{' '}
-                            {event.class.max_capacity}
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Section Code and Type based on section code */}
+                    return (
                       <div
+                        key={event.id}
                         style={{
-                          marginTop: '8px',
-                          display: 'flex',
-                          gap: '8px',
-                          flexWrap: 'wrap',
+                          background: colors.background,
+                          color: '#000',
+                          padding: '16px',
+                          borderRadius: '8px',
+                          marginBottom: '12px',
+                          border: 'none',
+                          position: 'relative',
                         }}
                       >
-                        {event.section_code && (
+                        {/* Event type indicator */}
+                        <span
+                          style={{
+                            position: 'absolute',
+                            top: '12px',
+                            right: '12px',
+                            fontSize: '16px',
+                            opacity: '0.9',
+                          }}
+                        >
+                          {colors.icon}
+                        </span>
+
+                        <div style={{ marginBottom: '8px' }}>
+                          <strong style={{ fontSize: '16px' }}>
+                            {event.title}
+                          </strong>
+                        </div>
+
+                        <Row gutter={16}>
+                          <Col span={6}>
+                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                              <strong>⏰ Time:</strong>{' '}
+                              {event.start.format('HH:mm')} -{' '}
+                              {event.end.format('HH:mm')}
+                            </div>
+                          </Col>
+                          <Col span={6}>
+                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                              <strong>🏢 Venue:</strong>{' '}
+                              {event.meetingTime.venue?.name || 'Unknown'}
+                            </div>
+                          </Col>
+                          <Col span={6}>
+                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                              <strong>🏫 Campus:</strong>{' '}
+                              {event.class?.campus?.name || 'Unknown'}
+                            </div>
+                          </Col>
+                          <Col span={6}>
+                            <div style={{ fontSize: '12px', opacity: '0.9' }}>
+                              <strong>📚 Type:</strong> {colors.type}
+                            </div>
+                          </Col>
+                        </Row>
+
+                        {/* Additional Event Details */}
+                        <div style={{ marginTop: '8px' }}>
+                          {event.class?.course && (
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <strong>📖 Course:</strong>{' '}
+                              {event.class.course.name ||
+                                event.class.course.code ||
+                                'Unknown'}
+                            </div>
+                          )}
+
+                          {event.class?.instructor && (
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <strong>👨‍🏫 Instructor:</strong>{' '}
+                              {event.class.instructor.first_name}{' '}
+                              {event.class.instructor.last_name}
+                            </div>
+                          )}
+
+                          {event.class?.teacher && (
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <strong>👨‍🏫 Teacher:</strong>{' '}
+                              {event.class.teacher.first_name}{' '}
+                              {event.class.teacher.last_name}
+                            </div>
+                          )}
+
+                          {event.class?.max_capacity && (
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                marginBottom: '4px',
+                              }}
+                            >
+                              <strong>👥 Capacity:</strong>{' '}
+                              {event.class.max_capacity}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Section Code and Type based on section code */}
+                        <div
+                          style={{
+                            marginTop: '8px',
+                            display: 'flex',
+                            gap: '8px',
+                            flexWrap: 'wrap',
+                          }}
+                        >
+                          {event.section_code && (
+                            <div
+                              style={{
+                                fontSize: '12px',
+                                opacity: '0.8',
+                                backgroundColor: 'rgba(255,255,255,0.1)',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                display: 'inline-block',
+                              }}
+                            >
+                              <strong>🏷️ Section:</strong> {event.section_code}
+                            </div>
+                          )}
+
+                          {/* Event Type based on section code */}
                           <div
                             style={{
                               fontSize: '12px',
@@ -4370,29 +4385,14 @@ const Calendar: React.FC = React.memo(() => {
                               display: 'inline-block',
                             }}
                           >
-                            <strong>🏷️ Section:</strong> {event.section_code}
+                            <strong>📚 Type:</strong> {colors.type}
                           </div>
-                        )}
-
-                        {/* Event Type based on section code */}
-                        <div
-                          style={{
-                            fontSize: '12px',
-                            opacity: '0.8',
-                            backgroundColor: 'rgba(255,255,255,0.1)',
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            display: 'inline-block',
-                          }}
-                        >
-                          <strong>📚 Type:</strong> {colors.type}
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
+                    );
+                  })}
+                </div>
+              )}
 
             {/* Single Class Details (fallback) */}
             {!selectedClassForDetails._dayEvents &&
@@ -4423,8 +4423,8 @@ const Calendar: React.FC = React.memo(() => {
                         <strong>Date:</strong>{' '}
                         {selectedClassForDetails.meeting_date
                           ? dayjs(selectedClassForDetails.meeting_date).format(
-                              'MMM D, YYYY'
-                            )
+                            'MMM D, YYYY'
+                          )
                           : 'N/A'}
                       </div>
                       <div style={{ marginBottom: '16px' }}>
@@ -4440,8 +4440,8 @@ const Calendar: React.FC = React.memo(() => {
                         <strong>Created:</strong>{' '}
                         {selectedClassForDetails.created_at
                           ? dayjs(selectedClassForDetails.created_at).format(
-                              'MMM D, YYYY'
-                            )
+                            'MMM D, YYYY'
+                          )
                           : 'N/A'}
                       </div>
                     </Col>

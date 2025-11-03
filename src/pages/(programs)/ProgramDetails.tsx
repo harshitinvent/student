@@ -55,7 +55,7 @@ type Program = {
 };
 
 // API Functions
-const API_BASE = 'http://103.189.173.7:8080/api/programs';
+const API_BASE = 'http://localhost:8080/api/programs';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');
@@ -83,7 +83,7 @@ async function fetchProgramCourses(
 }
 
 async function fetchAvailableCourses(): Promise<Course[]> {
-  const res = await fetch('http://103.189.173.7:8080/api/courses', {
+  const res = await fetch('http://localhost:8080/api/courses', {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch courses');

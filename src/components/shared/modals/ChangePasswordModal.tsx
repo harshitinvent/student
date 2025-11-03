@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Modal, Form, Input, Button, message } from 'antd';
 import { LockOutlined } from '@ant-design/icons';
 
-const API_BASE = 'http://103.189.173.7:8080/api/profile';
+const API_BASE = 'http://localhost:8080/api/profile';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');

@@ -5,7 +5,7 @@ import Button from '../../components/shared/Button';
 import { UserType } from '../../types/user';
 import ChangePasswordModal from '../../components/shared/modals/ChangePasswordModal';
 
-const API_BASE = 'http://103.189.173.7:8080/api/profile';
+const API_BASE = 'http://localhost:8080/api/profile';
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');

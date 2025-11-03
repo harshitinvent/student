@@ -15,7 +15,7 @@ import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import ConfirmActionModal from '../../components/shared/ConfirmActionModal';
 
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/streams';
+const API_BASE = 'http://localhost:8080/api/streams';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');

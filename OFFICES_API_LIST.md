@@ -116,7 +116,7 @@
 ## Base URL
 
 ```
-http://103.189.173.7:8080/api
+http://localhost:8080/api
 ```
 
 ## Documentation

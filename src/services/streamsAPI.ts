@@ -1,4 +1,4 @@
-const API_BASE = 'http://103.189.173.7:8080/api/streams';
+const API_BASE = 'http://localhost:8080/api/streams';
 
 export type Stream = {
   ID: number;

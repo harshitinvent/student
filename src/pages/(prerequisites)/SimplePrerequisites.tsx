@@ -43,7 +43,7 @@ type Prerequisite = {
 };
 
 // API Functions
-const API_BASE = 'http://103.189.173.7:8080/api/prerequisites';
+const API_BASE = 'http://localhost:8080/api/prerequisites';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');
@@ -60,7 +60,7 @@ async function fetchPrerequisites(): Promise<Prerequisite[]> {
 }
 
 async function fetchCourses(): Promise<Course[]> {
-  const res = await fetch('http://103.189.173.7:8080/api/courses', {
+  const res = await fetch('http://localhost:8080/api/courses', {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch courses');

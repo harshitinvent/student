@@ -61,6 +61,13 @@ export interface Conversation {
     studentEmail?: string;
     groupDescription?: string;
     groupAvatar?: string;
+    groupMembers?: Array<{
+      id: string;
+      name: string;
+      email: string;
+      isOnline?: boolean;
+    }>;
+    groupName?: string;
   };
 }
 
@@ -69,6 +76,7 @@ export interface Message {
   id: string;
   conversationId: string;
   senderId: string;
+  senderName?: string;
   content: string;
   contentType: 'text' | 'file' | 'image' | 'system';
   timestamp: Date;
@@ -121,6 +129,13 @@ export interface CreateConversationRequest {
     studentEmail?: string;
     groupDescription?: string;
     groupAvatar?: string;
+    groupMembers?: Array<{
+      id: string;
+      name: string;
+      email: string;
+      isOnline?: boolean;
+    }>;
+    groupName?: string;
   };
 }
 

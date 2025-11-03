@@ -21,7 +21,7 @@ import AddEditDepartmentModal from './AddEditDepartmentModal';
 import ConfirmActionModal from '../../components/shared/ConfirmActionModal';
 
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/departments';
+const API_BASE = 'http://localhost:8080/api/departments';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');

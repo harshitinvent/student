@@ -12,6 +12,8 @@ export function logout() {
   localStorage.removeItem('token');
   localStorage.removeItem('userType'); // Remove user type
   localStorage.removeItem('userEmail'); // Remove user email
+  localStorage.removeItem('userData'); // Remove user data
+  localStorage.removeItem('studentData'); // Remove student data
   if (typeof window !== 'undefined') {
     window.location.href = '/login';
   }
@@ -43,8 +45,8 @@ export default function LoginPage() {
 
     try {
       const response = await fetch(
-        // 'http://103.189.173.7:8080/api/admin/auth/login',
-        'http://103.189.173.7:8080/api/admin/auth/login',
+        // 'http://localhost:8080/api/admin/auth/login',
+        'http://localhost:8080/api/admin/auth/login',
         {
           method: 'POST',
           headers: {
@@ -65,6 +67,18 @@ export default function LoginPage() {
         localStorage.setItem('token', data?.data?.token);
         localStorage.setItem('userType', values.type ? values.type : 'Student'); // Save user type
         localStorage.setItem('userEmail', values.email.trim()); // Save user email
+
+        // Save complete user data to localStorage for chat system
+        const userData = {
+          id: data?.data?.user?.ID || data?.data?.id,
+          email: values.email.trim(),
+          userType: values.type ? values.type : 'Student',
+          name: data?.data?.user?.name || data?.data?.name || 'User',
+          token: data?.data?.token
+        };
+        localStorage.setItem('userData', JSON.stringify(userData));
+        console.log('User data saved to localStorage:', userData);
+
         setType(values.type ? values.type : 'Student');
         setIsAuthenticated(true);
 

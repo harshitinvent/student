@@ -9,7 +9,7 @@ import { GridViewIcon, Menu01Icon } from '@hugeicons/core-free-icons';
 import AddEditRoomModal, { type RoomFormValues } from './AddEditRoomModal';
 import axios from 'axios';
 
-const API_BASE_URL = 'http://103.189.173.7:8080/api/v1';
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 type StudentAssignment = {
   id: string;
@@ -194,7 +194,7 @@ export default function AccommodationsPage() {
                   info={r.type}
                   forSaving={false}
                   isListType={false}
-                  // status={r.status === 'Available' ? 'success' : 'error'}
+                // status={r.status === 'Available' ? 'success' : 'error'}
                 >
                   <div
                     className={'mt-12 flex items-center justify-between gap-12'}

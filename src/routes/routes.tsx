@@ -16,6 +16,9 @@ import SignupPage from '../pages/(auth)/Signup';
 import ChatLayout from '../layouts/ChatLayout';
 import ChatPage from '../pages/(chat)/Chat';
 import StudentsChatPage from '../pages/(chat)/StudentsChat';
+import StudentChatPage from '../pages/(chat)/StudentChatPage';
+import StudentLogin from '../pages/(auth)/StudentLogin';
+import TestFirebaseChat from '../pages/TestFirebaseChat';
 import CourseContentPage from '../pages/(course)/CourseContent';
 import AccommodationPage from '../pages/(accommodation)/Accommodation';
 import SettingsLayout from '../layouts/SettingsLayout';
@@ -98,6 +101,7 @@ export default function RoutesConfig() {
 
                     {/* Chat Routes */}
                     <Route path="/students-chat" element={<StudentsChatPage />} />
+                    <Route path="/student-chat" element={<StudentChatPage />} />
                   </>
                 )}
               </>
@@ -181,7 +185,7 @@ export default function RoutesConfig() {
               path={'/settings'}
               index
               element={
-                type === 'Student' ? <GeneralSettings /> : <PersonalSettings />
+                type === 'Student' ? <PersonalSettings /> : <PersonalSettings />
               }
             />
             <Route path={'/settings/security'} element={<SecuritySettings />} />
@@ -202,6 +206,8 @@ export default function RoutesConfig() {
       <Route element={<AuthLayout />}>
         <Route path={'/login'} element={<LoginPage />} />
         <Route path={'/signup'} element={<SignupPage />} />
+        <Route path={'/student-login'} element={<StudentLogin />} />
+        <Route path={'/test-firebase-chat'} element={<TestFirebaseChat />} />
       </Route>
     </Routes>
   );

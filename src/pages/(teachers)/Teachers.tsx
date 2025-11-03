@@ -25,7 +25,7 @@ import DeleteIcon from '../../assets/trash-delete.svg';
 import EditIcon from '../../assets/edit.svg';
 
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/teachers';
+const API_BASE = 'http://localhost:8080/api/teachers';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');

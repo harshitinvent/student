@@ -3,7 +3,7 @@ import { Layout, Card, Typography, Button, Modal, message } from 'antd';
 import { MessageOutlined, PlusOutlined } from '@ant-design/icons';
 import StudentList from '../../components/features/chat/StudentList';
 import { type Student } from '../../services/studentAPI';
-import { createConversation } from '../../services/chatAPI';
+import { createAdminConversation } from '../../services/adminChatAPI';
 
 const { Content } = Layout;
 const { Title, Text } = Typography;
@@ -24,10 +24,10 @@ const StudentsChat: React.FC = () => {
             setIsStartingChat(true);
 
             // Create a new conversation with the selected student
-            const conversation = await createConversation({
+            const conversation = await createAdminConversation({
                 type: 'direct',
-                participants: [selectedStudent.ID.toString()],
-                title: `Chat with ${selectedStudent.first_name} ${selectedStudent.last_name}`,
+                participants: ['admin', selectedStudent.ID.toString()],
+                title: `${selectedStudent.first_name} ${selectedStudent.last_name}`,
                 metadata: {
                     studentId: selectedStudent.ID.toString(),
                     studentName: `${selectedStudent.first_name} ${selectedStudent.last_name}`,
@@ -38,7 +38,7 @@ const StudentsChat: React.FC = () => {
             message.success(`Chat started with ${selectedStudent.first_name}!`);
 
             // Navigate to the chat page with the new conversation
-            window.location.href = `/chat?conversation=${conversation.id}`;
+            window.location.href = `/chat/${conversation.id}`;
 
         } catch (error) {
             console.error('Error starting chat:', error);

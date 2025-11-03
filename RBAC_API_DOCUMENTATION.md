@@ -7,7 +7,7 @@ This document contains all the required APIs for the Role-Based Access Control (
 ## Base URL
 
 ```
-http://103.189.173.7:8080/api
+http://localhost:8080/api
 ```
 
 ## Authentication

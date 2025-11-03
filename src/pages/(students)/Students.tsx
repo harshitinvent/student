@@ -24,7 +24,7 @@ import ConfirmActionModal from '../../components/shared/ConfirmActionModal';
 import DeleteIcon from '../../assets/trash-delete.svg';
 import EditIcon from '../../assets/edit.svg';
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/students';
+const API_BASE = 'http://localhost:8080/api/students';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');

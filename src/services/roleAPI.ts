@@ -8,7 +8,7 @@ import {
   UserPermissions 
 } from '../types/role';
 
-const API_BASE_URL = 'http://103.189.173.7:8080/api';
+const API_BASE_URL = 'http://localhost:8080/api';
 
 // Role Management APIs
 export const roleAPI = {

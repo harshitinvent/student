@@ -60,7 +60,7 @@ import UploadImage from '../../assets/upload-icon.svg';
 import Upload from '../../components/shared/form-elements/Upload';
 
 // Department API helpers
-const DEPARTMENT_API_BASE = 'http://103.189.173.7:8080/api/departments';
+const DEPARTMENT_API_BASE = 'http://localhost:8080/api/departments';
 const { TextArea } = Input;
 
 function getAuthHeaders(): Record<string, string> {
@@ -1035,13 +1035,12 @@ export default function InvoiceManagementPage() {
                   {invoiceHistory.map((history, index) => (
                     <div
                       key={history.id}
-                      className={`rounded-lg border p-4 ${
-                        history.action === 'APPROVED'
+                      className={`rounded-lg border p-4 ${history.action === 'APPROVED'
                           ? 'border-green-200 bg-green-50'
                           : history.action === 'REJECTED'
                             ? 'border-red-200 bg-red-50'
                             : 'border-gray-200 bg-gray-50'
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex-1">

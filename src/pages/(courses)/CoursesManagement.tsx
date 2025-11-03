@@ -23,7 +23,7 @@ import ConfirmActionModal from '../../components/shared/ConfirmActionModal';
 import DeleteIcon from '../../assets/trash-delete.svg';
 import EditIcon from '../../assets/edit.svg';
 // API helpers
-const API_BASE = 'http://103.189.173.7:8080/api/courses';
+const API_BASE = 'http://localhost:8080/api/courses';
 
 function getAuthHeaders(): Record<string, string> {
   const token = localStorage.getItem('token');
@@ -66,7 +66,7 @@ async function fetchPrograms(): Promise<
     department_name?: string;
   }>
 > {
-  const res = await fetch('http://103.189.173.7:8080/api/programs', {
+  const res = await fetch('http://localhost:8080/api/programs', {
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error('Failed to fetch programs');
@@ -408,7 +408,7 @@ export default function CoursesManagementPage() {
             allowClear
             size="large"
             prefix={<SearchOutlined />}
-            // onSearch={v => setSearch(v)}
+          // onSearch={v => setSearch(v)}
           />
         </div>
         <div className="table-responsive">

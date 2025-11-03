@@ -7,7 +7,7 @@ import type {
 } from '../types/finance';
 
 // API Base URL - configure this based on your environment
-const API_BASE = 'http://103.189.173.7:8080/api/financial';
+const API_BASE = 'http://localhost:8080/api/financial';
 
 // Helper function to get authentication headers
 function getAuthHeaders(): Record<string, string> {
