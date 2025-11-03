@@ -291,7 +291,7 @@ export default function Canvas() {
                 icon={'chevron'}
               />
             </div>
-
+             {/* Documents */}
             <div className={'mt-12 grid gap-12'}>
               <Link
                 to={'/canvas/1'}
@@ -375,8 +375,86 @@ export default function Canvas() {
           />
         </div>
       </div>
-
+  
+      {/* Messages Display Area - Replaces Document Content */}
       <div className={'flex flex-col items-center gap-20 pb-96 max-md:py-0'}>
+        <div className="messages-container">
+          {messages.length === 0 ? (
+            <div className="empty-state">
+              <h3>No messages yet</h3>
+              <p>Start a conversation by asking a question or uploading a document</p>
+            </div>
+          ) : (
+            messages.map((message: any) => (
+              <div key={message.id} className={`message-item ${message.type}`}>
+                {/* User message bubble */}
+                {message.type === 'user' && (
+                  <>
+                    <div className="message-bubble user">
+                      <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                    </div>
+                    {message.file && (
+                      <div className="file-attachment">
+                        <span>📎</span>
+                        <span>{message.file}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {/* Bot message bubble */}
+                {message.type === 'bot' && !message.isStepGuide && (
+                  <div className="message-bubble bot">
+                    <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                  </div>
+                )}
+
+                {/* Step-by-step guide panel */}
+                {message.isStepGuide && currentSteps.length > 0 && (
+                  <div className="step-panel">
+                    <div className="step-header">
+                      <div className="step-badge">
+                        <span>📋</span>
+                        <span>{currentSteps[currentStepIndex]?.title || 'Introduction'}</span>
+                      </div>
+                    </div>
+                    <div className="step-content">
+                      <div dangerouslySetInnerHTML={{ __html: currentSteps[currentStepIndex]?.content || 'Loading step content...' }} />
+                    </div>
+                    <div className="step-footer">
+                      <div className="step-counter">
+                        Step {currentStepIndex + 1} of {currentSteps.length}
+                      </div>
+                      <div className="step-actions">
+                        <button
+                          className="step-btn complete"
+                          onClick={() => {
+                            // Mark step as complete
+                            console.log('Step marked as complete');
+                          }}
+                        >
+                          ✓ Mark Complete
+                        </button>
+                        {currentStepIndex < currentSteps.length - 1 && (
+                          <button
+                            className="step-btn next"
+                            onClick={() => setCurrentStepIndex(prev => prev + 1)}
+                          >
+                            Next →
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Old Document Content - Commented Out */}
+      {/* <div className={'flex flex-col items-center gap-20 pb-96 max-md:py-0'}>
         {params?.id == '1' && (
           <div
             className={
@@ -665,7 +743,7 @@ export default function Canvas() {
             </>
           )}
         </div>
-      </div>
+      </div> */}
 
       <div
         ref={rightSidebarRef}
@@ -890,6 +968,7 @@ export default function Canvas() {
           <Dropdown list={fonts} directionX={'right'} className={'w-90'} />
         </div>
       </div> */}
+
 
       {/* Input Area */}
       <div className="input-area">
