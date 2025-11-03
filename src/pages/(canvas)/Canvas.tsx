@@ -36,6 +36,7 @@ import { useUserContext } from '../../providers/user';
 import { useComputeElementHeight } from '../../utils/hooks/useComputeElementHeight';
 import { useCheckMobileMatchMedia } from '../../utils/hooks/useCheckMobileMatchMedia';
 import Tiptap from '../../components/canvas/Tiptap';
+import axios from 'axios';
 
 const textType = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Paragraph'];
 const fonts = ['Roboto', 'Helvetica', 'Arial'];
@@ -43,6 +44,7 @@ const fonts = ['Roboto', 'Helvetica', 'Arial'];
 // const tabs = ['AI Citations', 'Password'];
 
 export default function Canvas() {
+  const token = localStorage.getItem('token');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
@@ -53,7 +55,24 @@ export default function Canvas() {
   const [currentSteps, setCurrentSteps] = useState<any[]>([]);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showSteps, setShowSteps] = useState(false);
+  const [documents, setDocuments] = useState<any[]>([]);
+  
 
+  const { type } = useUserContext();
+  const params = useParams();
+  const { isMobile } = useCheckMobileMatchMedia();
+
+  const [openShareModal, setOpenShareModal] = useState<boolean>(false);
+
+  const [openLeftSidebar, setOpenLeftSidebar] = useState<boolean>(false);
+
+  const rightSidebarRef = useRef<HTMLDivElement | null>(null);
+  const rightSidebarContentRef = useRef<HTMLDivElement | null>(null);
+  const [openRightSidebar, setOpenRightSidebar] = useState<boolean>(false);
+
+  // const [activeTab, setActiveTab] = useState(tabs[0]);
+
+  // ------------- Handlers ----------------
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -90,19 +109,14 @@ export default function Canvas() {
       if (selectedFile) {
         formData.append("file", selectedFile);
       }
-
-      // const response = await fetch(
-      //   "https://1xhxtpj7-8000.inc1.devtunnels.ms/chat/",
-      //   {
-      //     method: "POST",
-      //     body: formData,
-      //   }
-      // );
-
+      console.log("token", token);
       const response = await fetch(
-        "http://localhost:8080/api/v1/admin/upload/document/",
+        `http://localhost:8080/api/v1/admin/upload/document`,
         {
           method: "POST",
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
           body: formData,
         }
       );
@@ -110,6 +124,7 @@ export default function Canvas() {
       const data = await response.json();
 
       if (data.status === "success") {
+         getDocuments()
         // Check if response has steps for step-by-step functionality
         if (data.steps && data.steps.length > 0) {
           setCurrentSteps(data.steps);
@@ -146,6 +161,7 @@ export default function Canvas() {
         id: Date.now() + 1,
         type: "bot",
         content: "Sorry, I encountered an error. Please try again.",
+        isError: true,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -156,19 +172,18 @@ export default function Canvas() {
     }
   };
 
-  const { type } = useUserContext();
-  const params = useParams();
-  const { isMobile } = useCheckMobileMatchMedia();
-
-  const [openShareModal, setOpenShareModal] = useState<boolean>(false);
-
-  const [openLeftSidebar, setOpenLeftSidebar] = useState<boolean>(false);
-
-  const rightSidebarRef = useRef<HTMLDivElement | null>(null);
-  const rightSidebarContentRef = useRef<HTMLDivElement | null>(null);
-  const [openRightSidebar, setOpenRightSidebar] = useState<boolean>(false);
-
-  // const [activeTab, setActiveTab] = useState(tabs[0]);
+  const getDocuments = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/canvas/documents`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        })
+        setDocuments(response.data.data);
+      } catch (error) {
+        console.log("error", error);
+      }
+  }
 
   const [scale, setScale] = useState(1);
 
@@ -213,6 +228,10 @@ export default function Canvas() {
       setOpenRightSidebar(false);
     }
   }, [isMobile]);
+
+  useEffect(() => {
+    getDocuments();
+  }, []);
 
   return (
     <div
@@ -293,68 +312,16 @@ export default function Canvas() {
             </div>
              {/* Documents */}
             <div className={'mt-12 grid gap-12'}>
-              <Link
-                to={'/canvas/1'}
-                className={
-                  'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                }
-              >
-                <DocumentCardItem
-                  title={'Camistry.pdf'}
-                  subtitle={'Create or edit your study notes'}
-                />
-              </Link>
-
-              <Link
-                to={'/canvas/2'}
-                className={
-                  'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                }
-              >
-                <DocumentCardItem
-                  title={'Course_Handbook.pdf'}
-                  subtitle={'Create or edit your study notes'}
-                  iconColor={'blue'}
-                />
-              </Link>
-
-              <Link
-                to={'/canvas/3'}
-                className={
-                  'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                }
-              >
-                <DocumentCardItem
-                  title={'Learning_Plan_Sem1.pdf'}
-                  subtitle={'Create or edit your study notes'}
-                  iconColor={'orange'}
-                />
-              </Link>
-
-              <Link
-                to={'/canvas/4'}
-                className={
-                  'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                }
-              >
-                <DocumentCardItem
-                  title={'Learning_Plan_Sem1.pdf'}
-                  subtitle={'Create or edit your study notes'}
-                  iconColor={'red'}
-                />
-              </Link>
-
-              <Link
-                to={'/canvas/5'}
-                className={
-                  'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                }
-              >
-                <DocumentCardItem
-                  title={'Intro_to_Study_Skills.pdf'}
-                  subtitle={'Create or edit your study notes'}
-                />
-              </Link>
+              {documents.map((document) => (
+                  <DocumentCardItem
+                  className={
+                        'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
+                      }
+                    title={document.filename}
+                    subtitle={'Create or edit your study notes'}
+                    iconColor={'blue'}
+                  />
+              ))}
             </div>
           </div>
         </div>
@@ -399,14 +366,27 @@ export default function Canvas() {
                         <span>{message.file}</span>
                       </div>
                     )}
+                    {message.timestamp && (
+                      <div className="message-timestamp">
+                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
                   </>
                 )}
 
                 {/* Bot message bubble */}
                 {message.type === 'bot' && !message.isStepGuide && (
-                  <div className="message-bubble bot">
-                    <div dangerouslySetInnerHTML={{ __html: message.content }} />
-                  </div>
+                  <>
+                    <div className={`message-bubble bot ${message.isError ? 'error' : ''}`}>
+                      {message.isError && <span className="error-icon">⚠️</span>}
+                      <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                    </div>
+                    {message.timestamp && (
+                      <div className="message-timestamp">
+                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </div>
+                    )}
+                  </>
                 )}
 
                 {/* Step-by-step guide panel */}
@@ -449,6 +429,22 @@ export default function Canvas() {
                 )}
               </div>
             ))
+          )}
+          
+          {/* AI Thinking Indicator */}
+          {loading && (
+            <div className="message-item bot">
+              <div className="message-bubble bot">
+                <div className="ai-thinking">
+                  <div className="thinking-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                  <span className="thinking-text">AI is thinking...</span>
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
