@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import './Canvas.css';
 
 import {
   TextBoldIcon,
@@ -34,6 +35,7 @@ import ShareModal from '../../components/shared/modals/ShareModal';
 import { useUserContext } from '../../providers/user';
 import { useComputeElementHeight } from '../../utils/hooks/useComputeElementHeight';
 import { useCheckMobileMatchMedia } from '../../utils/hooks/useCheckMobileMatchMedia';
+import Tiptap from '../../components/canvas/Tiptap';
 
 const textType = ['H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'Paragraph'];
 const fonts = ['Roboto', 'Helvetica', 'Arial'];
@@ -41,6 +43,119 @@ const fonts = ['Roboto', 'Helvetica', 'Arial'];
 // const tabs = ['AI Citations', 'Password'];
 
 export default function Canvas() {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [inputText, setInputText] = useState('');
+  const [isSending, setIsSending] = useState(false);
+  
+  // Missing state declarations
+  const [messages, setMessages] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [currentSteps, setCurrentSteps] = useState<any[]>([]);
+  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [showSteps, setShowSteps] = useState(false);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedFile(file);
+    }
+  };
+
+  const handleSendMessage = async () => {
+    // --- 1. Check empty message ---
+    const isEmptyRichText = (html: any) => {
+      if (!html) return true;
+      const text = String(html)
+        .replace(/<[^>]*>/g, "")
+        .trim();
+      return text.length === 0;
+    };
+
+    if (isEmptyRichText(inputText) && !selectedFile) return;
+
+    const userMessage = {
+      id: Date.now(),
+      type: "user",
+      content: inputText,
+      file: selectedFile?.name || null,
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("query", inputText);
+      if (selectedFile) {
+        formData.append("file", selectedFile);
+      }
+
+      // const response = await fetch(
+      //   "https://1xhxtpj7-8000.inc1.devtunnels.ms/chat/",
+      //   {
+      //     method: "POST",
+      //     body: formData,
+      //   }
+      // );
+
+      const response = await fetch(
+        "http://localhost:8080/api/v1/admin/upload/document/",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        // Check if response has steps for step-by-step functionality
+        if (data.steps && data.steps.length > 0) {
+          setCurrentSteps(data.steps);
+          setCurrentStepIndex(0);
+          setShowSteps(true);
+
+          // Add initial step message
+          const stepMessage = {
+            id: Date.now() + 1,
+            type: "bot",
+            content: "I'll guide you through this step by step!",
+            isStepGuide: true,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, stepMessage]);
+        } else {
+          // Regular response
+          const botMessage = {
+            id: Date.now() + 1,
+            type: "bot",
+            content: data.response,
+            queryType: data.query_type,
+            fileProcessed: data.file_processed || null,
+            timestamp: new Date(),
+          };
+          setMessages((prev) => [...prev, botMessage]);
+        }
+      } else {
+        throw new Error(data.message || "Failed to get response");
+      }
+    } catch (error) {
+      //   message.error('Error: ' + error.message);
+      const errorMessage = {
+        id: Date.now() + 1,
+        type: "bot",
+        content: "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, errorMessage]);
+    } finally {
+      setLoading(false);
+      setInputText("");
+      setSelectedFile(null);
+    }
+  };
+
   const { type } = useUserContext();
   const params = useParams();
   const { isMobile } = useCheckMobileMatchMedia();
@@ -748,7 +863,7 @@ export default function Canvas() {
         </div>
       </div>
 
-      <div
+      {/* <div
         className={
           'pointer-events-none fixed inset-0 flex items-end overflow-x-auto px-16 pb-16 md:justify-center'
         }
@@ -774,7 +889,71 @@ export default function Canvas() {
           <NumberCounterInput />
           <Dropdown list={fonts} directionX={'right'} className={'w-90'} />
         </div>
-      </div>
+      </div> */}
+
+      {/* Input Area */}
+      <div className="input-area">
+            {selectedFile && (
+              <div className="file-preview">
+                <span>📎 {selectedFile.name}</span>
+                <button
+                  className="remove-file-btn"
+                  onClick={() => setSelectedFile(null)}
+                >
+                  ×
+                </button>
+              </div>
+            )}
+
+            <div className="input-container">
+              {/* <textarea
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                placeholder="Type your message here..."
+                className="message-input"
+                onKeyPress={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSendMessage();
+                  }
+                }}
+              /> */}
+
+              <Tiptap
+                value={inputText}
+                onChange={setInputText}
+                onEnterPress={handleSendMessage}
+              />
+
+              <div className="input-buttons">
+                <label className="file-upload-btn">
+                  📎 Upload
+                  <input
+                    type="file"
+                    onChange={(e) => handleFileSelect(e)}
+                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.csv,.txt,.zip,.docx,.doc,.xlsx,.xls"
+                    style={{ display: "none" }}
+                  />
+                </label>
+
+                <button
+                  className="send-btn"
+                  onClick={handleSendMessage}
+                  disabled={(inputText.trim() === '' || inputText === '<p></p>') && !selectedFile}
+                >
+                  ➤ Send
+                </button>
+              </div>
+            </div>
+
+            <div className="file-info-text">
+              Supported files: PDF, Images (JPG, PNG, GIF, WebP), Excel, CSV,
+              Word, ZIP (Max 20MB)
+            </div>
+          </div>
+
+
+      
 
       {openShareModal && (
         <ShareModal onClose={() => setOpenShareModal(false)} />
