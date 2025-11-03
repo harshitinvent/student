@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import JoditEditor from 'jodit-react';
 import './Canvas.css';
 
 import {
@@ -48,7 +49,7 @@ export default function Canvas() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
-  
+
   // Missing state declarations
   const [messages, setMessages] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -56,7 +57,10 @@ export default function Canvas() {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [showSteps, setShowSteps] = useState(false);
   const [documents, setDocuments] = useState<any[]>([]);
-  
+  const [editor, setEditor] = useState({
+    tiptapEditor: true,
+    joditEditor: false,
+  });
 
   const { type } = useUserContext();
   const params = useParams();
@@ -85,7 +89,7 @@ export default function Canvas() {
     const isEmptyRichText = (html: any) => {
       if (!html) return true;
       const text = String(html)
-        .replace(/<[^>]*>/g, "")
+        .replace(/<[^>]*>/g, '')
         .trim();
       return text.length === 0;
     };
@@ -94,7 +98,7 @@ export default function Canvas() {
 
     const userMessage = {
       id: Date.now(),
-      type: "user",
+      type: 'user',
       content: inputText,
       file: selectedFile?.name || null,
       timestamp: new Date(),
@@ -105,17 +109,17 @@ export default function Canvas() {
 
     try {
       const formData = new FormData();
-      formData.append("query", inputText);
+      formData.append('query', inputText);
       if (selectedFile) {
-        formData.append("file", selectedFile);
+        formData.append('file', selectedFile);
       }
-      console.log("token", token);
+      console.log('token', token);
       const response = await fetch(
         `http://localhost:8080/api/v1/admin/upload/document`,
         {
-          method: "POST",
+          method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: formData,
         }
@@ -123,8 +127,8 @@ export default function Canvas() {
 
       const data = await response.json();
 
-      if (data.status === "success") {
-         getDocuments()
+      if (data.status === 'success') {
+        getDocuments();
         // Check if response has steps for step-by-step functionality
         if (data.steps && data.steps.length > 0) {
           setCurrentSteps(data.steps);
@@ -134,7 +138,7 @@ export default function Canvas() {
           // Add initial step message
           const stepMessage = {
             id: Date.now() + 1,
-            type: "bot",
+            type: 'bot',
             content: "I'll guide you through this step by step!",
             isStepGuide: true,
             timestamp: new Date(),
@@ -144,7 +148,7 @@ export default function Canvas() {
           // Regular response
           const botMessage = {
             id: Date.now() + 1,
-            type: "bot",
+            type: 'bot',
             content: data.response,
             queryType: data.query_type,
             fileProcessed: data.file_processed || null,
@@ -153,37 +157,40 @@ export default function Canvas() {
           setMessages((prev) => [...prev, botMessage]);
         }
       } else {
-        throw new Error(data.message || "Failed to get response");
+        throw new Error(data.message || 'Failed to get response');
       }
     } catch (error) {
       //   message.error('Error: ' + error.message);
       const errorMessage = {
         id: Date.now() + 1,
-        type: "bot",
-        content: "Sorry, I encountered an error. Please try again.",
+        type: 'bot',
+        content: 'Sorry, I encountered an error. Please try again.',
         isError: true,
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setLoading(false);
-      setInputText("");
+      setInputText('');
       setSelectedFile(null);
     }
   };
 
   const getDocuments = async () => {
-      try {
-        const response = await axios.get(`http://localhost:8080/api/canvas/documents`, {
+    try {
+      const response = await axios.get(
+        `http://localhost:8080/api/canvas/documents`,
+        {
           headers: {
-            'Authorization': `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
-        })
-        setDocuments(response.data.data);
-      } catch (error) {
-        console.log("error", error);
-      }
-  }
+        }
+      );
+      setDocuments(response.data.data);
+    } catch (error) {
+      console.log('error', error);
+    }
+  };
 
   const [scale, setScale] = useState(1);
 
@@ -310,17 +317,17 @@ export default function Canvas() {
                 icon={'chevron'}
               />
             </div>
-             {/* Documents */}
+            {/* Documents */}
             <div className={'mt-12 grid gap-12'}>
               {documents.map((document) => (
-                  <DocumentCardItem
+                <DocumentCardItem
                   className={
-                        'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                      }
-                    title={document.filename}
-                    subtitle={'Create or edit your study notes'}
-                    iconColor={'blue'}
-                  />
+                    'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
+                  }
+                  title={document.filename}
+                  subtitle={'Create or edit your study notes'}
+                  iconColor={'blue'}
+                />
               ))}
             </div>
           </div>
@@ -342,14 +349,17 @@ export default function Canvas() {
           />
         </div>
       </div>
-  
+
       {/* Messages Display Area - Replaces Document Content */}
       <div className={'flex flex-col items-center gap-20 pb-96 max-md:py-0'}>
         <div className="messages-container">
           {messages.length === 0 ? (
             <div className="empty-state">
               <h3>No messages yet</h3>
-              <p>Start a conversation by asking a question or uploading a document</p>
+              <p>
+                Start a conversation by asking a question or uploading a
+                document
+              </p>
             </div>
           ) : (
             messages.map((message: any) => (
@@ -358,7 +368,9 @@ export default function Canvas() {
                 {message.type === 'user' && (
                   <>
                     <div className="message-bubble user">
-                      <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                      <div
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
                     </div>
                     {message.file && (
                       <div className="file-attachment">
@@ -368,7 +380,10 @@ export default function Canvas() {
                     )}
                     {message.timestamp && (
                       <div className="message-timestamp">
-                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </div>
                     )}
                   </>
@@ -377,13 +392,22 @@ export default function Canvas() {
                 {/* Bot message bubble */}
                 {message.type === 'bot' && !message.isStepGuide && (
                   <>
-                    <div className={`message-bubble bot ${message.isError ? 'error' : ''}`}>
-                      {message.isError && <span className="error-icon">⚠️</span>}
-                      <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                    <div
+                      className={`message-bubble bot ${message.isError ? 'error' : ''}`}
+                    >
+                      {message.isError && (
+                        <span className="error-icon">⚠️</span>
+                      )}
+                      <div
+                        dangerouslySetInnerHTML={{ __html: message.content }}
+                      />
                     </div>
                     {message.timestamp && (
                       <div className="message-timestamp">
-                        {new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {new Date(message.timestamp).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </div>
                     )}
                   </>
@@ -395,11 +419,20 @@ export default function Canvas() {
                     <div className="step-header">
                       <div className="step-badge">
                         <span>📋</span>
-                        <span>{currentSteps[currentStepIndex]?.title || 'Introduction'}</span>
+                        <span>
+                          {currentSteps[currentStepIndex]?.title ||
+                            'Introduction'}
+                        </span>
                       </div>
                     </div>
                     <div className="step-content">
-                      <div dangerouslySetInnerHTML={{ __html: currentSteps[currentStepIndex]?.content || 'Loading step content...' }} />
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html:
+                            currentSteps[currentStepIndex]?.content ||
+                            'Loading step content...',
+                        }}
+                      />
                     </div>
                     <div className="step-footer">
                       <div className="step-counter">
@@ -418,7 +451,9 @@ export default function Canvas() {
                         {currentStepIndex < currentSteps.length - 1 && (
                           <button
                             className="step-btn next"
-                            onClick={() => setCurrentStepIndex(prev => prev + 1)}
+                            onClick={() =>
+                              setCurrentStepIndex((prev) => prev + 1)
+                            }
                           >
                             Next →
                           </button>
@@ -430,7 +465,7 @@ export default function Canvas() {
               </div>
             ))
           )}
-          
+
           {/* AI Thinking Indicator */}
           {loading && (
             <div className="message-item bot">
@@ -937,99 +972,84 @@ export default function Canvas() {
         </div>
       </div>
 
-      {/* <div
-        className={
-          'pointer-events-none fixed inset-0 flex items-end overflow-x-auto px-16 pb-16 md:justify-center'
-        }
-      >
-        <div
-          className={
-            'border-linePr rounded-20 pointer-events-auto flex h-56 w-min shrink-0 items-center gap-8 border bg-white px-8 [&>*]:shrink-0'
-          }
-        >
-          <IconButton active icon={TextBoldIcon} />
-          <IconButton icon={TextItalicIcon} />
-          <IconButton icon={TextUnderlineIcon} />
-          <IconButton icon={TextStrikethroughIcon} />
-          <IconButton icon={TextColorIcon} />
-          <hr className={'bg-linePr h-full w-1 border-none'} />
-          <IconButton icon={TextAlignLeftIcon} />
-          <IconButton icon={TextAlignCenterIcon} />
-          <IconButton icon={TextAlignRightIcon} />
-          <IconButton icon={TextAlignJustifyCenterIcon} />
-          <IconButton icon={MoreVerticalIcon} />
-          <hr className={'bg-linePr h-full w-1 border-none'} />
-          <Dropdown list={textType} className={'min-w-150'} />
-          <NumberCounterInput />
-          <Dropdown list={fonts} directionX={'right'} className={'w-90'} />
-        </div>
-      </div> */}
-
-
       {/* Input Area */}
       <div className="input-area">
-            {selectedFile && (
-              <div className="file-preview">
-                <span>📎 {selectedFile.name}</span>
-                <button
-                  className="remove-file-btn"
-                  onClick={() => setSelectedFile(null)}
-                >
-                  ×
-                </button>
-              </div>
-            )}
-
-            <div className="input-container">
-              {/* <textarea
-                value={inputText}
-                onChange={(e) => setInputText(e.target.value)}
-                placeholder="Type your message here..."
-                className="message-input"
-                onKeyPress={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSendMessage();
-                  }
-                }}
-              /> */}
-
-              <Tiptap
-                value={inputText}
-                onChange={setInputText}
-                onEnterPress={handleSendMessage}
-              />
-
-              <div className="input-buttons">
-                <label className="file-upload-btn">
-                  📎 Upload
-                  <input
-                    type="file"
-                    onChange={(e) => handleFileSelect(e)}
-                    accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.csv,.txt,.zip,.docx,.doc,.xlsx,.xls"
-                    style={{ display: "none" }}
-                  />
-                </label>
-
-                <button
-                  className="send-btn"
-                  onClick={handleSendMessage}
-                  disabled={(inputText.trim() === '' || inputText === '<p></p>') && !selectedFile}
-                >
-                  ➤ Send
-                </button>
-              </div>
-            </div>
-
-            <div className="file-info-text">
-              Supported files: PDF, Images (JPG, PNG, GIF, WebP), Excel, CSV,
-              Word, ZIP (Max 20MB)
-            </div>
+        <div className="flex justify-center space-x-4 p-6">
+          <button
+            className="cursor-pointer rounded-lg bg-blue-500 px-6 py-2 text-white transition hover:bg-blue-600"
+            onClick={() =>
+              setEditor({ joditEditor: false, tiptapEditor: true })
+            }
+          >
+            Tip tap
+          </button>
+          <button
+            className="cursor-pointer rounded-lg bg-green-500 px-6 py-2 text-white transition hover:bg-green-600"
+            onClick={() =>
+              setEditor({ joditEditor: true, tiptapEditor: false })
+            }
+          >
+            Jodit
+          </button>
+        </div>
+        {selectedFile && (
+          <div className="file-preview">
+            <span>📎 {selectedFile.name}</span>
+            <button
+              className="remove-file-btn"
+              onClick={() => setSelectedFile(null)}
+            >
+              ×
+            </button>
           </div>
+        )}
 
+        <div className="input-container">
+          {editor.joditEditor && (
+            <JoditEditor
+              className="jodit-container"
+              value={inputText}
+              onChange={setInputText}
+            />
+          )}
 
-      
+          {editor.tiptapEditor && (
+            <Tiptap
+              value={inputText}
+              onChange={setInputText}
+              onEnterPress={handleSendMessage}
+            />
+          )}
 
+          <div className="input-buttons">
+            <label className="file-upload-btn">
+              📎 Upload
+              <input
+                type="file"
+                onChange={(e) => handleFileSelect(e)}
+                accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.csv,.txt,.zip,.docx,.doc,.xlsx,.xls"
+                style={{ display: 'none' }}
+              />
+            </label>
+
+            <button
+              className="send-btn"
+              onClick={handleSendMessage}
+              disabled={
+                (inputText.trim() === '' || inputText === '<p></p>') &&
+                !selectedFile
+              }
+            >
+              ➤ Send
+            </button>
+          </div>
+        </div>
+
+        <div className="file-info-text">
+          Supported files: PDF, Images (JPG, PNG, GIF, WebP), Excel, CSV, Word,
+          ZIP (Max 20MB)
+        </div>
+      </div>
       {openShareModal && (
         <ShareModal onClose={() => setOpenShareModal(false)} />
       )}
