@@ -46,7 +46,7 @@ const fonts = ['Roboto', 'Helvetica', 'Arial'];
 
 export default function Canvas() {
   const token = localStorage.getItem('token');
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedFile, setSelectedFile] = useState<any | null>(null);
   const [inputText, setInputText] = useState('');
   const [isSending, setIsSending] = useState(false);
 
@@ -84,6 +84,10 @@ export default function Canvas() {
     }
   };
 
+  const handleDocument = (document: any) => {
+    setSelectedFile(document);
+  };
+
   const handleSendMessage = async () => {
     // --- 1. Check empty message ---
     const isEmptyRichText = (html: any) => {
@@ -95,12 +99,11 @@ export default function Canvas() {
     };
 
     if (isEmptyRichText(inputText) && !selectedFile) return;
-
     const userMessage = {
       id: Date.now(),
       type: 'user',
       content: inputText,
-      file: selectedFile?.name || null,
+      file: selectedFile?.name || selectedFile.filename || null,
       timestamp: new Date(),
     };
 
@@ -110,10 +113,14 @@ export default function Canvas() {
     try {
       const formData = new FormData();
       formData.append('query', inputText);
+
+      if (selectedFile.id) {
+        formData.append('id', selectedFile.id);
+      }
+
       if (selectedFile) {
         formData.append('file', selectedFile);
       }
-      console.log('token', token);
       const response = await fetch(
         `http://localhost:8080/api/v1/admin/upload/document`,
         {
@@ -126,7 +133,7 @@ export default function Canvas() {
       );
 
       const data = await response.json();
-
+      console.log('data', data);
       if (data.status === 'success') {
         getDocuments();
         // Check if response has steps for step-by-step functionality
@@ -320,14 +327,16 @@ export default function Canvas() {
             {/* Documents */}
             <div className={'mt-12 grid gap-12'}>
               {documents.map((document) => (
-                <DocumentCardItem
-                  className={
-                    'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
-                  }
-                  title={document.filename}
-                  subtitle={'Create or edit your study notes'}
-                  iconColor={'blue'}
-                />
+                <div key={document.id} onClick={() => handleDocument(document)}>
+                  <DocumentCardItem
+                    className={
+                      'rounded-12 bg-bgSec hover:shadow-s1 cursor-pointer p-8 pr-16 duration-300'
+                    }
+                    title={document.filename}
+                    subtitle={'Create or edit your study notes'}
+                    iconColor={'blue'}
+                  />
+                </div>
               ))}
             </div>
           </div>
@@ -994,7 +1003,7 @@ export default function Canvas() {
         </div>
         {selectedFile && (
           <div className="file-preview">
-            <span>📎 {selectedFile.name}</span>
+            <span>📎 {selectedFile.name || selectedFile.filename}</span>
             <button
               className="remove-file-btn"
               onClick={() => setSelectedFile(null)}
