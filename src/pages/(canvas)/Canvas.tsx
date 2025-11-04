@@ -133,7 +133,6 @@ export default function Canvas() {
       );
 
       const data = await response.json();
-      console.log('data', data);
       if (data.status === 'success') {
         getDocuments();
         // Check if response has steps for step-by-step functionality
@@ -255,7 +254,7 @@ export default function Canvas() {
     >
       <div
         className={`bg-bgPr rounded-20 border-linePr sticky top-0 flex max-h-[calc(100vh-2.5rem)] flex-col justify-between self-start overflow-hidden border duration-300 max-md:fixed max-md:top-16 max-md:left-16 max-md:max-h-[calc(100dvh-6.5rem)] max-md:w-2/3 ${
-          openLeftSidebar ? 'h-full' : 'h-64'
+          openLeftSidebar ? 'h-[calc(100vh-350px)]' : 'h-64'
         }`}
       >
         <div>
@@ -277,7 +276,7 @@ export default function Canvas() {
                     'text-textPr text-14 flex-1 overflow-hidden font-medium text-ellipsis whitespace-nowrap'
                   }
                 >
-                  Student_Guide_2025.pdf
+                  Uploaded Documents
                 </p>
               </Link>
 
@@ -298,26 +297,20 @@ export default function Canvas() {
             <div className={'flex h-38 items-center justify-between'}>
               <p
                 className={
-                  'text-14 text-textPr flex-1 overflow-hidden font-medium text-ellipsis'
-                }
-              >
-                Student_Guide_2025.pdf
-              </p>
-              <CustomIcon
-                className={`text-textPr [&_*]:stroke-1.5 size-16 shrink-0`}
-                icon={'chevron'}
-              />
-            </div>
-          </div>
-
-          <div className={'border-linePr border-t px-16 py-12'}>
-            <div className={'flex h-38 items-center justify-between'}>
-              <p
-                className={
                   'text-body-m text-textHeadline flex-1 overflow-hidden font-semibold text-ellipsis'
                 }
               >
                 Documents
+                {/* <IconButton
+                  onClick={() => {
+                    if (isMobile) {
+                      setOpenRightSidebar(false);
+                    }
+                    setOpenLeftSidebar(!openLeftSidebar);
+                  }}
+                  className={'text-textSecondary !size-32'}
+                  icon={LayoutRightIcon}
+                /> */}
               </p>
               <CustomIcon
                 className={`text-textPr [&_*]:stroke-1.5 size-16 shrink-0`}
@@ -787,9 +780,7 @@ export default function Canvas() {
 
       <div
         ref={rightSidebarRef}
-        className={`rounded-20 border-linePr sticky top-0 self-start overflow-hidden border bg-[#FCFCFC] max-md:fixed max-md:top-16 max-md:right-16 max-md:duration-300 ${
-          openRightSidebar ? 'max-md:w-1/2' : 'max-md:w-88'
-        }`}
+        className={`rounded-20 border-linePr sticky top-0 w-full self-start overflow-hidden border bg-[#FCFCFC] max-md:fixed max-md:top-16 max-md:right-16 max-md:duration-300 ${openRightSidebar ? 'max-md:w-full' : 'max-md:w-full'} `}
       >
         <div ref={rightSidebarContentRef}>
           <div
